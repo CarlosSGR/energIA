@@ -1,0 +1,281 @@
+/* Reseteo básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body, html {
+    height: 100%;
+    width: 100%;
+}
+
+.split-container {
+    display: flex;
+    height: 100vh;
+}
+
+/* Panel Izquierdo - Imagen de fondo global con tu URL */
+.left-panel {
+    flex: 1;
+    background: url('https://luxun.mx/hs-fs/hubfs/recibos-de-luz-fisicos-cfe-jpg.webp?width=950&name=recibos-de-luz-fisicos-cfe-jpg.webp') center center no-repeat;
+    background-size: cover;
+}
+
+/* Panel Derecho - Formulario */
+.right-panel {
+    flex: 1;
+    background-color: #031e0b;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.login-box {
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    padding: 20px;
+}
+
+/* Logo con tu ruta local */
+.logo {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    margin-bottom: 15px;
+    background-image: url('./assets/logoEnergia.png'); 
+    background-size: cover;
+    background-position: center;
+    display: inline-block;
+}
+
+h1 {
+    color: #ffffff;
+    font-size: 2.8rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+}
+
+h2 {
+    color: #66ff66;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 40px;
+}
+
+.input-group {
+    margin-bottom: 25px;
+    text-align: left;
+}
+
+/* Se agregó input[type="text"] para que cubra los campos de Sign Up */
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    padding: 10px 5px;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #1f3b26;
+    color: #ffffff;
+    font-size: 1rem;
+    outline: none;
+}
+
+input::placeholder {
+    color: #6b8270;
+    font-weight: 500;
+}
+
+input:focus {
+    border-bottom: 1px solid #66ff66;
+}
+
+.links {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 30px;
+    margin-bottom: 40px;
+}
+
+.links a {
+    color: #7b9480;
+    text-decoration: none;
+    font-size: 0.95rem;
+}
+
+.links a:hover {
+    color: #ffffff;
+}
+
+.btn-login {
+    width: 100%;
+    padding: 15px;
+    background-color: #ffffff;
+    color: #031e0b; /* Color oscuro por defecto (Sign In) */
+    border: none;
+    border-radius: 30px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-login:hover {
+    background-color: #e0e0e0;
+}
+
+/* Variante para el texto verde en el botón de Sign Up */
+.btn-signup {
+    color: #267a39; 
+}
+
+/* Icono de barras en la esquina inferior derecha */
+.bottom-right-icon {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.bar {
+    width: 8px;
+    background-color: #00cc44;
+    border-radius: 2px;
+}
+
+.bar:nth-child(1) { height: 10px; }
+.bar:nth-child(2) { height: 18px; }
+.bar:nth-child(3) { height: 26px; }
+.bar:nth-child(4) { height: 35px; }
+
+/* Media Query para pantallas pequeñas */
+@media (max-width: 768px) {
+    .split-container {
+        flex-direction: column;
+    }
+    .left-panel {
+        display: none;
+    }
+    .right-panel {
+        height: 100vh;
+    }
+}
+
+/* =========================================
+   ESTILOS DEL DASHBOARD
+   ========================================= */
+
+.dashboard-container {
+    display: flex;
+    height: 100vh;
+    background-color: #031e0b;
+    color: #ffffff;
+    overflow: hidden; /* Evita scrollbars innecesarios */
+}
+
+/* --- Menú Lateral (Sidebar) --- */
+.sidebar {
+    width: 280px;
+    padding-top: 40px;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-header {
+    padding-left: 30px;
+    margin-bottom: 40px;
+}
+
+.sidebar-header h1 {
+    font-size: 2.2rem;
+    margin-bottom: 5px;
+}
+
+.sidebar-header h2 {
+    font-size: 1.1rem;
+    color: #66ff66;
+    margin-bottom: 0;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.nav-item {
+    text-decoration: none;
+    color: #e0e0e0;
+    font-size: 1.05rem;
+    padding: 15px 30px;
+    border-radius: 0 30px 30px 0; /* Redondea solo el lado derecho */
+    margin-right: 20px; /* Espacio antes de llegar a los widgets */
+    transition: background-color 0.2s ease;
+}
+
+.nav-item:hover {
+    background-color: #0a2913;
+}
+
+.nav-item.active {
+    background-color: #1a3020; /* Color de pestaña activa */
+    color: #ffffff;
+}
+
+/* --- Contenido Principal y Grid --- */
+.main-content {
+    flex: 1;
+    padding: 40px 40px 40px 10px; /* Espaciado interno general */
+    position: relative;
+}
+
+.widgets-grid {
+    display: grid;
+    /* Divide el espacio en 3 columnas iguales */
+    grid-template-columns: repeat(3, 1fr);
+    /* Divide el espacio en 2 filas iguales */
+    grid-template-rows: repeat(2, 1fr);
+    gap: 20px;
+    height: 100%;
+    /* Deja espacio abajo para que los widgets no tapen el icono */
+    padding-bottom: 30px; 
+}
+
+/* Estilo base de cada widget */
+.widget {
+    background-color: #1a2f20;
+    border-radius: 15px;
+    /* Aquí dentro podrías usar Flexbox más adelante para centrar el contenido de cada widget */
+}
+
+/* Distribución asimétrica de la imagen */
+.widget-small-top {
+    grid-column: span 1;
+}
+
+.widget-large-top {
+    grid-column: span 2;
+}
+
+.widget-large-bottom {
+    grid-column: span 2;
+}
+
+.widget-small-bottom {
+    grid-column: span 1;
+}
+
+/* Ajuste del icono para que respete el borde del main-content en esta vista */
+.dashboard-container .bottom-right-icon {
+    right: 30px;
+    bottom: 20px;
+}

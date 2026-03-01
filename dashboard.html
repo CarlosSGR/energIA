@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Energia - Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="dashboard-container">
+        
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>Dashboard</h1>
+                <h2 id="display-username">Cargando...</h2>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active">Mis predicciones</a>
+                <a href="#" class="nav-item">Subir archivos</a>
+                <a href="#" class="nav-item">Consultar archivos</a>
+                <a href="#" id="logout-btn" class="nav-item">Cerrar Sesión</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="widgets-grid">
+                <div class="widget widget-small-top"></div>
+                <div class="widget widget-large-top"></div>
+                
+                <div class="widget widget-large-bottom"></div>
+                <div class="widget widget-small-bottom"></div>
+            </div>
+
+            <div class="bottom-right-icon">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // 1. Verificación de sesión
+            const userId = localStorage.getItem('userId');
+            const nombreUsuario = localStorage.getItem('nombreUsuario');
+
+            // Si no hay datos de sesión, expulsa al usuario al login
+            if (!userId || !nombreUsuario) {
+                window.location.href = 'login.html';
+                return; // Detiene la ejecución del resto del script
+            }
+
+            // 2. Inyección de datos en la interfaz
+            const nameDisplay = document.getElementById("display-username");
+            if (nameDisplay) {
+                nameDisplay.textContent = nombreUsuario;
+            }
+
+            // 3. Lógica de Cierre de Sesión
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', (e) => {
+                    e.preventDefault(); // Evita que el enlace navegue por defecto
+                    
+                    // Limpia el almacenamiento local
+                    localStorage.removeItem('userId');
+                    localStorage.removeItem('nombreUsuario');
+                    
+                    // Redirige al login
+                    window.location.href = 'login.html';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

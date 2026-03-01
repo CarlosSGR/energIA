@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Energia - Sign In</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="split-container">
+        <div class="left-panel"></div>
+
+        <div class="right-panel">
+            <div class="login-box">
+                <div class="logo"></div>
+                
+                <h1>ENERGIA</h1>
+                <h2>Iniciar Sesión</h2>
+
+                <form id="loginForm">
+                    <div class="input-group">
+                        <input type="email" id="correo" placeholder="Correo Electrónico" required>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="contrasena" placeholder="Contraseña" required>
+                    </div>
+
+                    <div class="links">
+                        <a href="signup.html">¿No tienes una cuenta? Crea una</a>
+                        <a href="#">¿Olvidaste tu contraseña?</a>
+                    </div>
+
+                    <button type="submit" class="btn-login">Iniciar Sesión</button>
+                </form>
+                
+            </div> </div>
+        </div>
+
+            <div class="bottom-right-icon">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                correo: document.getElementById('correo').value,
+                contrasena: document.getElementById('contrasena').value
+            };
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Guardamos los datos de sesión en el navegador
+                    localStorage.setItem('userId', result.userId);
+                    localStorage.setItem('nombreUsuario', result.nombre);
+                    
+                    // Redirección al Dashboard
+                    window.location.href = 'dashboard.html';
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error de red:', error);
+                alert('No se pudo conectar con el servidor.');
+            }
+        });
+    </script>
+</body>
+</html>

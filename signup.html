@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Energia - Sign Up</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="split-container">
+        <div class="left-panel"></div>
+
+        <div class="right-panel">
+            <div class="login-box">
+                <div class="logo"></div>
+                
+                <h1>ENERGIA</h1>
+                <h2>Registrarse</h2>
+
+                <form id="registroForm">
+                    <div class="input-group">
+                        <input type="text" id="nombres" placeholder="Nombre(s)" required>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="apellidos" placeholder="Apellidos" required>
+                    </div>
+                    <div class="input-group">
+                        <input type="email" id="correo" placeholder="Correo Electrónico" required>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="contrasena" placeholder="Contraseña" required>
+                    </div>
+
+                    <div class="links">
+                        <a href="login.html">¿Tienes una cuenta? Inicia Sesión</a>
+                    </div>
+
+                    <button type="submit" class="btn-login btn-signup">Crear cuenta</button>
+                </form>
+
+            </div> </div>
+    </div>
+
+    <script>
+        document.getElementById('registroForm').addEventListener('submit', async (e) => {
+            e.preventDefault(); // Evita que la página recargue
+            
+            const data = {
+                nombres: document.getElementById('nombres').value,
+                apellidos: document.getElementById('apellidos').value,
+                correo: document.getElementById('correo').value,
+                contrasena: document.getElementById('contrasena').value
+            };
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/registro', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert('Registro exitoso. Redirigiendo al login...');
+                    window.location.href = 'login.html';
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error de red:', error);
+                alert('No se pudo conectar con el servidor.');
+            }
+        });
+    </script>
+</body>
+</html>

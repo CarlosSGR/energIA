@@ -157,7 +157,26 @@ input:focus {
 .bar:nth-child(3) { height: 26px; }
 .bar:nth-child(4) { height: 35px; }
 
-/* Media Query para pantallas pequeñas */
+
+/* =========================================
+   MEDIA QUERIES DE ADAPTACIÓN
+   ========================================= */
+
+/* Adaptación para pantallas con poca altura vertical (Laptops) */
+@media (max-height: 850px) {
+    .logo {
+        width: 110px;
+        height: 110px;
+        margin-bottom: 5px;
+    }
+    h1 { font-size: 2.2rem; }
+    h2 { margin-bottom: 20px; font-size: 1.5rem; }
+    .input-group { margin-bottom: 15px; }
+    .links { margin-top: 15px; margin-bottom: 20px; gap: 10px; }
+    .btn-login { padding: 12px; }
+}
+
+/* Media Query para pantallas con poco ancho (Móviles) */
 @media (max-width: 768px) {
     .split-container {
         flex-direction: column;
@@ -170,6 +189,7 @@ input:focus {
     }
 }
 
+
 /* =========================================
    ESTILOS DEL DASHBOARD
    ========================================= */
@@ -179,7 +199,7 @@ input:focus {
     height: 100vh;
     background-color: #031e0b;
     color: #ffffff;
-    overflow: hidden; /* Evita scrollbars innecesarios */
+    overflow: hidden; 
 }
 
 /* --- Menú Lateral (Sidebar) --- */
@@ -217,36 +237,39 @@ input:focus {
     color: #e0e0e0;
     font-size: 1.05rem;
     padding: 15px 30px;
-    border-radius: 0 30px 30px 0; /* Redondea solo el lado derecho */
-    margin-right: 20px; /* Espacio antes de llegar a los widgets */
-    transition: background-color 0.2s ease;
+    border-radius: 0 30px 30px 0; 
+    margin-right: 20px; 
+    /* Se cambia a 'all' para que anime tanto el color como la escala */
+    transition: all 0.3s ease; 
+    /* Ancla el elemento a la izquierda para que crezca solo hacia la derecha */
+    transform-origin: left center; 
 }
 
 .nav-item:hover {
     background-color: #0a2913;
+    /* Expande el botón un 4% de su tamaño original */
+    transform: scale(1.04); 
 }
 
 .nav-item.active {
-    background-color: #1a3020; /* Color de pestaña activa */
+    background-color: #1a3020; 
     color: #ffffff;
 }
 
 /* --- Contenido Principal y Grid --- */
 .main-content {
     flex: 1;
-    padding: 40px 40px 40px 10px; /* Espaciado interno general */
+    /* CORRECCIÓN DE SEPARACIÓN: Se incrementó el padding izquierdo a 60px (antes 10px) */
+    padding: 40px 40px 40px 100px; 
     position: relative;
 }
 
 .widgets-grid {
     display: grid;
-    /* Divide el espacio en 3 columnas iguales */
     grid-template-columns: repeat(3, 1fr);
-    /* Divide el espacio en 2 filas iguales */
     grid-template-rows: repeat(2, 1fr);
     gap: 20px;
     height: 100%;
-    /* Deja espacio abajo para que los widgets no tapen el icono */
     padding-bottom: 30px; 
 }
 
@@ -254,28 +277,179 @@ input:focus {
 .widget {
     background-color: #1a2f20;
     border-radius: 15px;
-    /* Aquí dentro podrías usar Flexbox más adelante para centrar el contenido de cada widget */
 }
 
 /* Distribución asimétrica de la imagen */
-.widget-small-top {
-    grid-column: span 1;
-}
+.widget-small-top { grid-column: span 1; }
+.widget-large-top { grid-column: span 2; }
+.widget-large-bottom { grid-column: span 2; }
+.widget-small-bottom { grid-column: span 1; }
 
-.widget-large-top {
-    grid-column: span 2;
-}
-
-.widget-large-bottom {
-    grid-column: span 2;
-}
-
-.widget-small-bottom {
-    grid-column: span 1;
-}
-
-/* Ajuste del icono para que respete el borde del main-content en esta vista */
 .dashboard-container .bottom-right-icon {
     right: 30px;
     bottom: 20px;
+}
+
+/* =========================================
+   SISTEMA DE PESTAÑAS (SPA VIEWS)
+   ========================================= */
+.view-section {
+    display: none; /* Oculta todas las vistas por defecto */
+    height: 100%;
+}
+
+.view-section.active {
+    display: block; /* Solo muestra la que tiene la clase active */
+}
+
+/* =========================================
+   VISTA: SUBIR ARCHIVOS (Actualizado)
+   ========================================= */
+.upload-area {
+    width: 100%;
+    height: 350px; /* Puedes subir este valor a 400px si quieres el área gris aún más grande */
+    background-color: #1a2f20;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.upload-area:hover {
+    background-color: #233e2a;
+}
+
+.upload-area p {
+    color: #5c7863;
+    font-size: 1.2rem;
+    pointer-events: none;
+}
+
+.upload-thumbnails {
+    display: flex;
+    gap: 30px; /* Separación aumentada */
+    margin-top: 30px;
+}
+
+.thumb-wrapper {
+    text-align: center;
+}
+
+.thumb-box {
+    width: 130px; /* Aumentado de 90px */
+    height: 130px; /* Aumentado de 90px */
+    background-color: #3b5c43;
+    border-radius: 15px;
+    margin-bottom: 12px;
+}
+
+.thumb-wrapper p {
+    color: #e0e0e0;
+    font-size: 1.1rem; /* Texto ligeramente más grande */
+}
+
+/* =========================================
+   VISTA: CONSULTAR ARCHIVOS (Actualizado)
+   ========================================= */
+.consult-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 35px; /* Separación aumentada */
+}
+
+.consult-item {
+    text-align: center;
+}
+
+.consult-card {
+    width: 240px; /* Aumentado de 160px */
+    height: 340px; /* Aumentado de 220px */
+    background-color: #3b5c43;
+    border-radius: 20px;
+    margin-bottom: 15px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.consult-card:hover {
+    transform: translateY(-8px); /* Efecto de elevación un poco más notorio */
+}
+
+.consult-item p {
+    color: #e0e0e0;
+    font-size: 1.1rem; /* Texto más grande */
+}
+
+/* =========================================
+   MODAL (CERRAR SESIÓN)
+   ========================================= */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(2px); /* Efecto difuminado en el fondo */
+}
+
+.modal-overlay.hidden {
+    display: none;
+}
+
+.modal-box {
+    background-color: #ffffff;
+    padding: 40px 50px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.modal-box h3 {
+    color: #000000;
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin-bottom: 30px;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.btn-modal {
+    padding: 12px 50px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.btn-modal:hover {
+    opacity: 0.8;
+}
+
+.btn-no {
+    background-color: #ff6b6b; /* Rojo claro */
+    color: #ffffff;
+}
+
+.btn-si {
+    background-color: #98e898; /* Verde claro */
+    color: #000000;
+}
+
+/* Botón neutro para alertas generales */
+.btn-ok {
+    background-color: #ffffff;
+    color: #031e0b;
 }

@@ -17,63 +17,139 @@
             </div>
             
             <nav class="sidebar-nav">
-                <a href="#" class="nav-item active">Mis predicciones</a>
-                <a href="#" class="nav-item">Subir archivos</a>
-                <a href="#" class="nav-item">Consultar archivos</a>
-                <a href="#" id="logout-btn" class="nav-item">Cerrar Sesión</a>
+                <a href="#" class="nav-item active" data-target="view-predicciones">Mis predicciones</a>
+                <a href="#" class="nav-item" data-target="view-subir">Subir archivos</a>
+                <a href="#" class="nav-item" data-target="view-consultar">Consultar archivos</a>
+                <a href="#" id="btn-open-logout" class="nav-item">Cerrar Sesión</a>
             </nav>
         </aside>
 
         <main class="main-content">
-            <div class="widgets-grid">
-                <div class="widget widget-small-top"></div>
-                <div class="widget widget-large-top"></div>
-                
-                <div class="widget widget-large-bottom"></div>
-                <div class="widget widget-small-bottom"></div>
+            
+            <div id="view-predicciones" class="view-section active">
+                <div class="widgets-grid">
+                    <div class="widget widget-small-top"></div>
+                    <div class="widget widget-large-top"></div>
+                    <div class="widget widget-large-bottom"></div>
+                    <div class="widget widget-small-bottom"></div>
+                </div>
             </div>
 
-            <div class="bottom-right-icon">
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
+            <div id="view-subir" class="view-section">
+                <div class="upload-area">
+                    <p>Arrastra un archivo o da click para seleccionar uno</p>
+                </div>
+                <div class="upload-thumbnails">
+                    <div class="thumb-wrapper">
+                        <div class="thumb-box"></div>
+                        <p>img1</p>
+                    </div>
+                    <div class="thumb-wrapper">
+                        <div class="thumb-box"></div>
+                        <p>img2</p>
+                    </div>
+                    <div class="thumb-wrapper">
+                        <div class="thumb-box"></div>
+                        <p>img3</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-consultar" class="view-section">
+                <div class="consult-grid">
+                    <div class="consult-item">
+                        <div class="consult-card"></div>
+                        <p>14-02-2026</p>
+                    </div>
+                    <div class="consult-item">
+                        <div class="consult-card"></div>
+                        <p>14-02-2026</p>
+                    </div>
+                    <div class="consult-item">
+                        <div class="consult-card"></div>
+                        <p>14-02-2026</p>
+                    </div>
+                    <div class="consult-item">
+                        <div class="consult-card"></div>
+                        <p>14-02-2026</p>
+                    </div>
+                    <div class="consult-item">
+                        <div class="consult-card"></div>
+                        <p>14-02-2026</p>
+                    </div>
+                </div>
             </div>
         </main>
     </div>
 
+    <div id="logout-modal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h3>¿Estas seguro que quieres cerrar sesión?</h3>
+            <div class="modal-buttons">
+                <button id="btn-cancel-logout" class="btn-modal btn-no">No</button>
+                <button id="btn-confirm-logout" class="btn-modal btn-si">Si</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            // 1. Verificación de sesión
+            // --- 1. Verificación de sesión ---
             const userId = localStorage.getItem('userId');
             const nombreUsuario = localStorage.getItem('nombreUsuario');
 
-            // Si no hay datos de sesión, expulsa al usuario al login
             if (!userId || !nombreUsuario) {
                 window.location.href = 'login.html';
-                return; // Detiene la ejecución del resto del script
+                return; 
             }
 
-            // 2. Inyección de datos en la interfaz
             const nameDisplay = document.getElementById("display-username");
             if (nameDisplay) {
                 nameDisplay.textContent = nombreUsuario;
             }
 
-            // 3. Lógica de Cierre de Sesión
-            const logoutBtn = document.getElementById('logout-btn');
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', (e) => {
-                    e.preventDefault(); // Evita que el enlace navegue por defecto
+            // --- 2. Lógica de Cambio de Pestañas (SPA) ---
+            const navItems = document.querySelectorAll('.nav-item[data-target]');
+            const viewSections = document.querySelectorAll('.view-section');
+
+            navItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
                     
-                    // Limpia el almacenamiento local
-                    localStorage.removeItem('userId');
-                    localStorage.removeItem('nombreUsuario');
-                    
-                    // Redirige al login
-                    window.location.href = 'login.html';
+                    // Quitar clase active de todos los links y vistas
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    viewSections.forEach(view => view.classList.remove('active'));
+
+                    // Agregar clase active al clickeado
+                    item.classList.add('active');
+                    const targetId = item.getAttribute('data-target');
+                    document.getElementById(targetId).classList.add('active');
                 });
-            }
+            });
+
+            // --- 3. Lógica del Modal de Cerrar Sesión ---
+            const modal = document.getElementById('logout-modal');
+            const btnOpenLogout = document.getElementById('btn-open-logout');
+            const btnCancelLogout = document.getElementById('btn-cancel-logout');
+            const btnConfirmLogout = document.getElementById('btn-confirm-logout');
+
+            // Abrir modal
+            btnOpenLogout.addEventListener('click', (e) => {
+                e.preventDefault();
+                modal.classList.remove('hidden');
+            });
+
+            // Cerrar modal (Botón No)
+            btnCancelLogout.addEventListener('click', () => {
+                modal.classList.add('hidden');
+            });
+
+            // Confirmar cierre (Botón Si)
+            btnConfirmLogout.addEventListener('click', () => {
+                localStorage.removeItem('userId');
+                localStorage.removeItem('nombreUsuario');
+                window.location.href = 'login.html';
+            });
         });
     </script>
 </body>

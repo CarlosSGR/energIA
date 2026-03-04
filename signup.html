@@ -39,12 +39,44 @@
                     <button type="submit" class="btn-login btn-signup">Crear cuenta</button>
                 </form>
 
-            </div> </div>
+            </div> 
+        </div>
+    </div>
+
+    <div id="alert-modal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h3 id="alert-message">Mensaje aquí</h3>
+            <div class="modal-buttons">
+                <button id="btn-alert-ok" class="btn-modal btn-ok">Aceptar</button>
+            </div>
+        </div>
     </div>
 
     <script>
+        // Lógica del Modal Personalizado
+        let redirectOnClose = null;
+        const alertModal = document.getElementById('alert-modal');
+        const alertMessage = document.getElementById('alert-message');
+        const btnAlertOk = document.getElementById('btn-alert-ok');
+
+        // Función para mostrar el modal con opción de redirección
+        function showCustomAlert(message, redirectUrl = null) {
+            alertMessage.textContent = message;
+            redirectOnClose = redirectUrl;
+            alertModal.classList.remove('hidden');
+        }
+
+        // Evento para cerrar el modal y redirigir si es necesario
+        btnAlertOk.addEventListener('click', () => {
+            alertModal.classList.add('hidden');
+            if (redirectOnClose) {
+                window.location.href = redirectOnClose;
+            }
+        });
+
+        // Lógica del Formulario
         document.getElementById('registroForm').addEventListener('submit', async (e) => {
-            e.preventDefault(); // Evita que la página recargue
+            e.preventDefault(); 
             
             const data = {
                 nombres: document.getElementById('nombres').value,
@@ -63,14 +95,14 @@
                 const result = await response.json();
 
                 if (response.ok) {
-                    alert('Registro exitoso. Redirigiendo al login...');
-                    window.location.href = 'login.html';
+                    // Pasamos la URL de login para que redirija al presionar "Aceptar"
+                    showCustomAlert('Registro exitoso. Serás redirigido al login.', 'login.html');
                 } else {
-                    alert('Error: ' + result.message);
+                    showCustomAlert('Error: ' + result.message);
                 }
             } catch (error) {
                 console.error('Error de red:', error);
-                alert('No se pudo conectar con el servidor.');
+                showCustomAlert('No se pudo conectar con el servidor.');
             }
         });
     </script>

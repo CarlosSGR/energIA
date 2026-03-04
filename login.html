@@ -34,18 +34,37 @@
                     <button type="submit" class="btn-login">Iniciar Sesión</button>
                 </form>
                 
-            </div> </div>
+            </div> 
         </div>
+    </div>
 
-            <div class="bottom-right-icon">
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
+    <div id="alert-modal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h3 id="alert-message">Mensaje de error aquí</h3>
+            <div class="modal-buttons">
+                <button id="btn-alert-ok" class="btn-modal btn-ok">Aceptar</button>
             </div>
         </div>
     </div>
+
     <script>
+        // Lógica del Modal Personalizado
+        const alertModal = document.getElementById('alert-modal');
+        const alertMessage = document.getElementById('alert-message');
+        const btnAlertOk = document.getElementById('btn-alert-ok');
+
+        // Función para mostrar el modal
+        function showCustomAlert(message) {
+            alertMessage.textContent = message;
+            alertModal.classList.remove('hidden');
+        }
+
+        // Evento para cerrar el modal
+        btnAlertOk.addEventListener('click', () => {
+            alertModal.classList.add('hidden');
+        });
+
+        // Lógica del Formulario
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -71,11 +90,12 @@
                     // Redirección al Dashboard
                     window.location.href = 'dashboard.html';
                 } else {
-                    alert('Error: ' + result.message);
+                    // Usamos el modal en lugar de alert()
+                    showCustomAlert('Error: ' + result.message);
                 }
             } catch (error) {
                 console.error('Error de red:', error);
-                alert('No se pudo conectar con el servidor.');
+                showCustomAlert('No se pudo conectar con el servidor.');
             }
         });
     </script>

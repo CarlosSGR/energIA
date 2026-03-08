@@ -16,7 +16,7 @@
                 <div class="logo"></div>
                 
                 <h1>ENERGIA</h1>
-                <h2>Registrarse</h2>
+                <h2>Registrarme</h2>
 
                 <form id="registroForm">
                     <div class="input-group">
@@ -26,14 +26,22 @@
                         <input type="text" id="apellidos" placeholder="Apellidos" required>
                     </div>
                     <div class="input-group">
-                        <input type="email" id="correo" placeholder="Correo Electrónico" required>
+                        <input type="email" id="correo" placeholder="Correo electrónico" required>
+                    </div>
+                    <div class="input-group">
+                        <input type="tel" id="telefono" placeholder="Teléfono" required>
                     </div>
                     <div class="input-group">
                         <input type="password" id="contrasena" placeholder="Contraseña" required>
                     </div>
 
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="notificaciones" required>
+                        <label for="notificaciones">Acepto recibir notificaciones por correo y teléfono</label>
+                    </div>
+
                     <div class="links">
-                        <a href="login.html">¿Tienes una cuenta? Inicia Sesión</a>
+                        <a href="login.html">¿Ya tienes cuenta? Inicia sesión</a>
                     </div>
 
                     <button type="submit" class="btn-login btn-signup">Crear cuenta</button>
@@ -53,20 +61,17 @@
     </div>
 
     <script>
-        // Lógica del Modal Personalizado
         let redirectOnClose = null;
         const alertModal = document.getElementById('alert-modal');
         const alertMessage = document.getElementById('alert-message');
         const btnAlertOk = document.getElementById('btn-alert-ok');
 
-        // Función para mostrar el modal con opción de redirección
         function showCustomAlert(message, redirectUrl = null) {
             alertMessage.textContent = message;
             redirectOnClose = redirectUrl;
             alertModal.classList.remove('hidden');
         }
 
-        // Evento para cerrar el modal y redirigir si es necesario
         btnAlertOk.addEventListener('click', () => {
             alertModal.classList.add('hidden');
             if (redirectOnClose) {
@@ -74,7 +79,6 @@
             }
         });
 
-        // Lógica del Formulario
         document.getElementById('registroForm').addEventListener('submit', async (e) => {
             e.preventDefault(); 
             
@@ -82,7 +86,10 @@
                 nombres: document.getElementById('nombres').value,
                 apellidos: document.getElementById('apellidos').value,
                 correo: document.getElementById('correo').value,
-                contrasena: document.getElementById('contrasena').value
+                telefono: document.getElementById('telefono').value,
+                contrasena: document.getElementById('contrasena').value,
+                // NUEVO: Captura el valor booleano (true/false) del checkbox
+                notificaciones: document.getElementById('notificaciones').checked 
             };
 
             try {
@@ -95,7 +102,6 @@
                 const result = await response.json();
 
                 if (response.ok) {
-                    // Pasamos la URL de login para que redirija al presionar "Aceptar"
                     showCustomAlert('Registro exitoso. Serás redirigido al login.', 'login.html');
                 } else {
                     showCustomAlert('Error: ' + result.message);

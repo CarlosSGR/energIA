@@ -1,7 +1,9 @@
+import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import mysql.connector
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from datetime import datetime
 
 app = Flask(__name__)
@@ -14,46 +16,43 @@ db_config = {
     'database': 'ControlRecibos'
 }
 
+UPLOAD_FOLDER = 'uploads'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 def get_db_connection():
     return mysql.connector.connect(**db_config)
 
-# ==========================================
-# ENDPOINT: REGISTRO DE USUARIO
-# ==========================================
 @app.route('/api/registro', methods=['POST'])
 def registro():
     data = request.json
     nombres = data.get('nombres')
     apellidos = data.get('apellidos')
     correo = data.get('correo')
+    telefono = data.get('telefono')
     contrasena = data.get('contrasena')
-
-    # Concatenación para coincidir con tu esquema de BD
-    nombre_completo = f"{nombres} {apellidos}".strip()
     
-    # Hash de seguridad para la contraseña
+    acepta_notificaciones = 1 if data.get('notificaciones') else 0 
     contrasena_hash = generate_password_hash(contrasena)
     fecha_registro = datetime.now().strftime('%Y-%m-%d')
-    rol_default = 1 # Asume que el ID 1 existe en la tabla Rol
+    rol_default = 1 
 
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
         
         query = """
-            INSERT INTO Usuario (Rol, `Nombre(s)`, Correo, Contrasena, FechaRegistro) 
-            VALUES (%s, %s, %s, %s, %s)
+            INSERT INTO Usuario (Rol, Nombres, Apellidos, Correo, Contrasena, FechaRegistro, Telefono, AceptaNotificaciones) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """
-        cursor.execute(query, (rol_default, nombre_completo, correo, contrasena_hash, fecha_registro))
+        cursor.execute(query, (rol_default, nombres, apellidos, correo, contrasena_hash, fecha_registro, telefono, acepta_notificaciones))
         conn.commit()
         
         return jsonify({"status": "success", "message": "Usuario registrado correctamente"}), 201
 
     except mysql.connector.IntegrityError as err:
-        # 1062: Error de duplicado (ej. correo ya registrado)
         if err.errno == 1062:
             return jsonify({"status": "error", "message": "El correo ya está registrado"}), 409
-        # 1452: Error de llave foránea (ej. el Rol 1 no existe)
         elif err.errno == 1452:
             return jsonify({"status": "error", "message": "Error interno: El Rol por defecto no existe en la base de datos"}), 500
         else:
@@ -64,9 +63,6 @@ def registro():
         if 'cursor' in locals(): cursor.close()
         if 'conn' in locals(): conn.close()
 
-# ==========================================
-# ENDPOINT: LOGIN DE USUARIO
-# ==========================================
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.json
@@ -77,19 +73,131 @@ def login():
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
         
-        query = "SELECT Id, `Nombre(s)`, Contrasena FROM Usuario WHERE Correo = %s"
+        query = "SELECT Id, Nombres, Contrasena FROM Usuario WHERE Correo = %s"
         cursor.execute(query, (correo,))
         usuario = cursor.fetchone()
         
-        # Se verifica si el usuario existe y si el hash coincide con la contraseña ingresada
         if usuario and check_password_hash(usuario['Contrasena'], contrasena):
             return jsonify({
                 "status": "success", 
                 "userId": usuario['Id'],
-                "nombre": usuario['Nombre(s)']
+                "nombre": usuario['Nombres']
             }), 200
         else:
             return jsonify({"status": "error", "message": "Credenciales inválidas"}), 401
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
+
+@app.route('/api/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({"status": "error", "message": "No se envió ningún archivo"}), 400
+    
+    file = request.files['file']
+    user_id = request.form.get('userId')
+    
+    if file.filename == '':
+        return jsonify({"status": "error", "message": "Archivo no seleccionado"}), 400
+        
+    if not file.filename.lower().endswith('.pdf'):
+        return jsonify({"status": "error", "message": "Solo se permiten archivos PDF"}), 400
+
+    try:
+        filename = secure_filename(file.filename)
+        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+        unique_filename = f"{user_id}_{timestamp}_{filename}"
+        
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
+        file.save(filepath)
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        fecha_subida = datetime.now().strftime('%Y-%m-%d')
+        
+        query = """
+            INSERT INTO Recibos (UsuarioId, Url, FechaSubida, Estado) 
+            VALUES (%s, %s, %s, %s)
+        """
+        cursor.execute(query, (user_id, filepath, fecha_subida, 'Pendiente'))
+        recibo_id = cursor.lastrowid # Obtenemos el ID recién insertado
+        conn.commit()
+        
+        return jsonify({
+            "status": "success", 
+            "message": "Archivo subido correctamente",
+            "file": {
+                "id": recibo_id,
+                "name": filename,
+                "date": fecha_subida
+            }
+        }), 201
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
+
+@app.route('/api/recibos/<int:user_id>', methods=['GET'])
+def obtener_recibos(user_id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        
+        query = "SELECT Id, Url, FechaSubida, Estado FROM Recibos WHERE UsuarioId = %s ORDER BY FechaSubida DESC"
+        cursor.execute(query, (user_id,))
+        recibos = cursor.fetchall()
+        
+        archivos_formateados = []
+        for r in recibos:
+            filename_part = os.path.basename(r['Url'])
+            partes = filename_part.split('_', 2)
+            nombre_original = partes[2] if len(partes) > 2 else filename_part
+            
+            archivos_formateados.append({
+                "id": r['Id'],
+                "name": nombre_original,
+                "date": r['FechaSubida'].strftime('%Y-%m-%d'),
+                "estado": r['Estado']
+            })
+            
+        return jsonify({"status": "success", "archivos": archivos_formateados}), 200
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
+
+# ==========================================
+# NUEVO ENDPOINT: ELIMINAR RECIBO
+# ==========================================
+@app.route('/api/recibos/<int:recibo_id>', methods=['DELETE'])
+def eliminar_recibo(recibo_id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        
+        # Primero buscamos la URL para borrar el archivo físico
+        cursor.execute("SELECT Url FROM Recibos WHERE Id = %s", (recibo_id,))
+        recibo = cursor.fetchone()
+        
+        if recibo:
+            filepath = recibo['Url']
+            if os.path.exists(filepath):
+                os.remove(filepath) # Borra el archivo de la carpeta uploads
+                
+            # Luego borramos el registro de la base de datos
+            cursor.execute("DELETE FROM Recibos WHERE Id = %s", (recibo_id,))
+            conn.commit()
+            
+            return jsonify({"status": "success", "message": "Recibo eliminado correctamente"}), 200
+        else:
+            return jsonify({"status": "error", "message": "Recibo no encontrado"}), 404
 
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500

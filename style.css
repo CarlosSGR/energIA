@@ -1,455 +1,1123 @@
-/* Reseteo básico */
 * {
+
     margin: 0;
+
     padding: 0;
+
     box-sizing: border-box;
+
     font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
 }
+
+
 
 body, html {
+
     height: 100%;
+
     width: 100%;
+
 }
+
+
 
 .split-container {
+
     display: flex;
+
     height: 100vh;
+
 }
+
+
 
 /* Panel Izquierdo - Imagen de fondo global con tu URL */
+
 .left-panel {
+
     flex: 1;
+
     background: url('https://luxun.mx/hs-fs/hubfs/recibos-de-luz-fisicos-cfe-jpg.webp?width=950&name=recibos-de-luz-fisicos-cfe-jpg.webp') center center no-repeat;
+
     background-size: cover;
+
 }
 
+
+
 /* Panel Derecho - Formulario */
+
 .right-panel {
+
     flex: 1;
+
     background-color: #031e0b;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+    position: relative;
+
+}
+
+
+
+.login-box {
+
+    width: 100%;
+
+    max-width: 400px;
+
+    text-align: center;
+
+    padding: 20px;
+
+}
+
+
+
+/* Logo con tu ruta local */
+
+.logo {
+
+    width: 150px;
+
+    height: 150px;
+
+    border-radius: 50%;
+
+    margin-bottom: 15px;
+
+    background-image: url('./assets/logoEnergia.png');
+
+    background-size: cover;
+
+    background-position: center;
+
+    display: inline-block;
+
+}
+
+
+
+h1 {
+
+    color: #ffffff;
+
+    font-size: 2.8rem;
+
+    font-weight: 800;
+
+    letter-spacing: 1px;
+
+    margin-bottom: 5px;
+
+}
+
+
+
+h2 {
+
+    color: #66ff66;
+
+    font-size: 1.8rem;
+
+    font-weight: 700;
+
+    margin-bottom: 40px;
+
+}
+
+
+
+.input-group {
+
+    margin-bottom: 25px;
+
+    text-align: left;
+
+}
+
+
+
+/* Se agregó input[type="text"] para que cubra los campos de Sign Up */
+
+input[type="text"],
+
+input[type="email"],
+
+input[type="tel"],
+
+input[type="password"] {
+
+    width: 100%;
+
+    padding: 10px 5px;
+
+    background: transparent;
+
+    border: none;
+
+    border-bottom: 1px solid #1f3b26;
+
+    color: #ffffff;
+
+    font-size: 1rem;
+
+    outline: none;
+
+}
+
+
+
+input::placeholder {
+
+    color: #6b8270;
+
+    font-weight: 500;
+
+}
+
+
+
+input:focus {
+
+    border-bottom: 1px solid #66ff66;
+
+}
+
+
+
+.links {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 15px;
+
+    margin-top: 30px;
+
+    margin-bottom: 40px;
+
+}
+
+
+
+.links a {
+
+    color: #7b9480;
+
+    text-decoration: none;
+
+    font-size: 0.95rem;
+
+}
+
+
+
+.links a:hover {
+
+    color: #ffffff;
+
+}
+
+
+
+.btn-login {
+
+    width: 100%;
+
+    padding: 15px;
+
+    background-color: #ffffff;
+
+    color: #031e0b; /* Color oscuro por defecto (Sign In) */
+
+    border: none;
+
+    border-radius: 30px;
+
+    font-size: 1.1rem;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: background-color 0.3s ease;
+
+}
+
+
+
+.btn-login:hover {
+
+    background-color: #e0e0e0;
+
+}
+
+
+
+/* Variante para el texto verde en el botón de Sign Up */
+
+.btn-signup {
+
+    color: #267a39;
+
+}
+
+
+
+/* Icono de barras en la esquina inferior derecha */
+
+.bottom-right-icon {
+
+    position: absolute;
+
+    bottom: 20px;
+
+    right: 20px;
+
+    display: flex;
+
+    align-items: flex-end;
+
+    gap: 4px;
+
+}
+
+
+
+.bar {
+
+    width: 8px;
+
+    background-color: #00cc44;
+
+    border-radius: 2px;
+
+}
+
+
+
+.bar:nth-child(1) { height: 10px; }
+
+.bar:nth-child(2) { height: 18px; }
+
+.bar:nth-child(3) { height: 26px; }
+
+.bar:nth-child(4) { height: 35px; }
+
+
+
+
+
+/* =========================================
+
+   MEDIA QUERIES DE ADAPTACIÓN
+
+   ========================================= */
+
+
+
+/* Adaptación para pantallas con poca altura vertical (Laptops) */
+
+@media (max-height: 850px) {
+
+    .logo {
+
+        width: 110px;
+
+        height: 110px;
+
+        margin-bottom: 5px;
+
+    }
+
+    h1 { font-size: 2.2rem; }
+
+    h2 { margin-bottom: 20px; font-size: 1.5rem; }
+
+    .input-group { margin-bottom: 15px; }
+
+    .links { margin-top: 15px; margin-bottom: 20px; gap: 10px; }
+
+    .btn-login { padding: 12px; }
+
+}
+
+
+
+/* Media Query para pantallas con poco ancho (Móviles) */
+
+@media (max-width: 768px) {
+
+    .split-container {
+
+        flex-direction: column;
+
+    }
+
+    .left-panel {
+
+        display: none;
+
+    }
+
+    .right-panel {
+
+        height: 100vh;
+
+    }
+
+}
+
+
+
+
+
+/* =========================================
+
+   ESTILOS DEL DASHBOARD
+
+   ========================================= */
+
+
+
+.dashboard-container {
+
+    display: flex;
+
+    height: 100vh;
+
+    background-color: #031e0b;
+
+    color: #ffffff;
+
+    overflow: hidden;
+
+}
+
+
+
+/* --- Menú Lateral (Sidebar) --- */
+
+.sidebar {
+
+    width: 280px;
+
+    padding-top: 40px;
+
+    display: flex;
+
+    flex-direction: column;
+
+}
+
+
+
+.sidebar-header {
+
+    padding-left: 30px;
+
+    margin-bottom: 40px;
+
+}
+
+
+
+.sidebar-header h1 {
+
+    font-size: 2.2rem;
+
+    margin-bottom: 5px;
+
+}
+
+
+
+.sidebar-header h2 {
+
+    font-size: 1.1rem;
+
+    color: #66ff66;
+
+    margin-bottom: 0;
+
+}
+
+
+
+.sidebar-nav {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 10px;
+
+}
+
+
+
+.nav-item {
+
+    text-decoration: none;
+
+    color: #e0e0e0;
+
+    font-size: 1.05rem;
+
+    padding: 15px 30px;
+
+    border-radius: 0 30px 30px 0;
+
+    margin-right: 20px;
+
+    /* Se cambia a 'all' para que anime tanto el color como la escala */
+
+    transition: all 0.3s ease;
+
+    /* Ancla el elemento a la izquierda para que crezca solo hacia la derecha */
+
+    transform-origin: left center;
+
+}
+
+
+
+.nav-item:hover {
+
+    background-color: #0a2913;
+
+    /* Expande el botón un 4% de su tamaño original */
+
+    transform: scale(1.04);
+
+}
+
+
+
+.nav-item.active {
+
+    background-color: #1a3020;
+
+    color: #ffffff;
+
+}
+
+
+
+/* --- Contenido Principal y Grid --- */
+
+.main-content {
+
+    flex: 1;
+
+    /* CORRECCIÓN DE SEPARACIÓN: Se incrementó el padding izquierdo a 60px (antes 10px) */
+
+    padding: 40px 40px 40px 100px;
+
+    position: relative;
+
+}
+
+
+
+.widgets-grid {
+
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    grid-template-rows: repeat(2, 1fr);
+
+    gap: 20px;
+
+    height: 100%;
+
+    padding-bottom: 30px;
+
+}
+
+
+
+/* Estilo base de cada widget */
+
+.widget {
+
+    background-color: #1a2f20;
+
+    border-radius: 15px;
+
+}
+
+
+
+/* Distribución asimétrica de la imagen */
+
+.widget-small-top { grid-column: span 1; }
+
+.widget-large-top { grid-column: span 2; }
+
+.widget-large-bottom { grid-column: span 2; }
+
+.widget-small-bottom { grid-column: span 1; }
+
+
+
+.dashboard-container .bottom-right-icon {
+
+    right: 30px;
+
+    bottom: 20px;
+
+}
+
+
+
+/* =========================================
+
+   SISTEMA DE PESTAÑAS (SPA VIEWS)
+
+   ========================================= */
+
+.view-section {
+
+    display: none; /* Oculta todas las vistas por defecto */
+
+    height: 100%;
+
+}
+
+
+
+.view-section.active {
+
+    display: block; /* Solo muestra la que tiene la clase active */
+
+}
+
+
+
+/* =========================================
+
+   VISTA: SUBIR ARCHIVOS (Actualizado)
+
+   ========================================= */
+
+.upload-area {
+
+    width: 100%;
+
+    height: 350px; /* Puedes subir este valor a 400px si quieres el área gris aún más grande */
+
+    background-color: #1a2f20;
+
+    border-radius: 15px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    cursor: pointer;
+
+    transition: background-color 0.3s ease;
+
+}
+
+
+
+.upload-area:hover {
+
+    background-color: #233e2a;
+
+}
+
+
+
+.upload-area p {
+
+    color: #5c7863;
+
+    font-size: 1.2rem;
+
+    pointer-events: none;
+
+}
+
+
+
+.upload-thumbnails {
+
+    display: flex;
+
+    gap: 30px; /* Separación aumentada */
+
+    margin-top: 30px;
+
+}
+
+
+
+.thumb-wrapper {
+
+    text-align: center;
+
+}
+
+
+
+.thumb-box {
+
+    width: 130px; /* Aumentado de 90px */
+
+    height: 130px; /* Aumentado de 90px */
+
+    background-color: #3b5c43;
+
+    border-radius: 15px;
+
+    margin-bottom: 12px;
+
+}
+
+
+
+.thumb-wrapper p {
+
+    color: #e0e0e0;
+
+    font-size: 1.1rem; /* Texto ligeramente más grande */
+
+}
+
+
+
+/* =========================================
+
+   VISTA: CONSULTAR ARCHIVOS (Actualizado)
+
+   ========================================= */
+
+.consult-grid {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 35px; /* Separación aumentada */
+
+}
+
+
+
+.consult-item {
+
+    text-align: center;
+
+}
+
+
+
+.consult-card {
+
+    width: 240px; /* Aumentado de 160px */
+
+    height: 340px; /* Aumentado de 220px */
+
+    background-color: #3b5c43;
+
+    border-radius: 20px;
+
+    margin-bottom: 15px;
+
+    cursor: pointer;
+
+    transition: transform 0.2s ease;
+
+}
+
+
+
+.consult-card:hover {
+
+    transform: translateY(-8px); /* Efecto de elevación un poco más notorio */
+
+}
+
+
+
+.consult-item p {
+
+    color: #e0e0e0;
+
+    font-size: 1.1rem; /* Texto más grande */
+
+}
+
+
+
+/* =========================================
+
+   MODAL (CERRAR SESIÓN)
+
+   ========================================= */
+
+.modal-overlay {
+
+    position: fixed;
+
+    top: 0;
+
+    left: 0;
+
+    width: 100%;
+
+    height: 100%;
+
+    background-color: rgba(0, 0, 0, 0.6);
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    z-index: 1000;
+
+    backdrop-filter: blur(2px); /* Efecto difuminado en el fondo */
+
+}
+
+
+
+.modal-overlay.hidden {
+
+    display: none;
+
+}
+
+
+
+.modal-box {
+
+    background-color: #ffffff;
+
+    padding: 40px 50px;
+
+    border-radius: 15px;
+
+    text-align: center;
+
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+
+}
+
+
+
+.modal-box h3 {
+
+    color: #000000;
+
+    font-size: 1.2rem;
+
+    font-weight: 500;
+
+    margin-bottom: 30px;
+
+}
+
+
+
+.modal-buttons {
+
+    display: flex;
+
+    justify-content: center;
+
+    gap: 20px;
+
+}
+
+
+
+.btn-modal {
+
+    padding: 12px 50px;
+
+    border: none;
+
+    border-radius: 5px;
+
+    font-size: 1rem;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: opacity 0.2s ease;
+
+}
+
+
+
+.btn-modal:hover {
+
+    opacity: 0.8;
+
+}
+
+
+
+.btn-no {
+
+    background-color: #ff6b6b; /* Rojo claro */
+
+    color: #ffffff;
+
+}
+
+
+
+.btn-si {
+
+    background-color: #98e898; /* Verde claro */
+
+    color: #000000;
+
+}
+
+
+
+/* Botón neutro para alertas generales */
+
+.btn-ok {
+
+    background-color: #ffffff;
+
+    color: #031e0b;
+
+}
+
+/* =========================================
+   NUEVOS ESTILOS: CHECKBOX (SIGNUP)
+   ========================================= */
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #267a39;
+    cursor: pointer;
+}
+
+.checkbox-group label {
+    color: #5c7863;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+/* =========================================
+   ACTUALIZACIÓN NAV-ITEM (DASHBOARD)
+   ========================================= */
+.nav-item.active {
+    background-color: #1a3020; 
+    color: #f2cc79; /* Color amarillento/naranja de la captura */
+}
+
+/* =========================================
+   CONTENIDO INTERNO DE WIDGETS
+   ========================================= */
+.flex-col-center {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    position: relative;
-}
-
-.login-box {
-    width: 100%;
-    max-width: 400px;
-    text-align: center;
     padding: 20px;
 }
 
-/* Logo con tu ruta local */
-.logo {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    margin-bottom: 15px;
-    background-image: url('./assets/logoEnergia.png'); 
-    background-size: cover;
-    background-position: center;
-    display: inline-block;
+.flex-row-center {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
 }
 
-h1 {
+.widget-title {
     color: #ffffff;
-    font-size: 2.8rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.widget-huge-text {
+    font-size: 3.5rem;
     font-weight: 800;
-    letter-spacing: 1px;
-    margin-bottom: 5px;
-}
-
-h2 {
-    color: #66ff66;
-    font-size: 1.8rem;
-    font-weight: 700;
-    margin-bottom: 40px;
-}
-
-.input-group {
-    margin-bottom: 25px;
-    text-align: left;
-}
-
-/* Se agregó input[type="text"] para que cubra los campos de Sign Up */
-input[type="text"],
-input[type="email"],
-input[type="password"] {
-    width: 100%;
-    padding: 10px 5px;
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid #1f3b26;
     color: #ffffff;
-    font-size: 1rem;
-    outline: none;
 }
 
-input::placeholder {
-    color: #6b8270;
-    font-weight: 500;
+/* Gráfico de pastel simulado con CSS */
+.fake-pie-chart {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    /* Utiliza los colores de tu captura */
+    background: conic-gradient(
+        #f25c5c 0% 15%, 
+        #f2c94c 15% 40%, 
+        #26b899 40% 100%
+    );
 }
 
-input:focus {
-    border-bottom: 1px solid #66ff66;
+/* =========================================
+   NUEVA VISTA: MIS ARCHIVOS (CONSULTAR)
+   ========================================= */
+.view-main-title {
+    color: #ffffff;
+    font-size: 2rem;
+    margin-bottom: 20px;
+    font-weight: bold;
 }
 
-.links {
+.dashed-dropzone {
+    width: 100%;
+    height: 200px;
+    border: 2px dashed #2a4a33;
+    border-radius: 20px;
+    background-color: #0b1a11;
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    margin-top: 30px;
-    margin-bottom: 40px;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 30px;
 }
 
-.links a {
-    color: #7b9480;
-    text-decoration: none;
-    font-size: 0.95rem;
+.dashed-dropzone p {
+    color: #5c7863;
+    font-size: 1.1rem;
+    margin-bottom: 15px;
 }
 
-.links a:hover {
-    color: #ffffff;
-}
-
-.btn-login {
-    width: 100%;
-    padding: 15px;
+.btn-seleccionar {
     background-color: #ffffff;
-    color: #031e0b; /* Color oscuro por defecto (Sign In) */
+    color: #031e0b;
+    padding: 10px 25px;
+    border-radius: 5px;
     border: none;
-    border-radius: 30px;
-    font-size: 1.1rem;
-    font-weight: 600;
+    font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    font-size: 1rem;
+    transition: opacity 0.2s ease;
 }
 
-.btn-login:hover {
-    background-color: #e0e0e0;
+.btn-seleccionar:hover {
+    opacity: 0.8;
 }
 
-/* Variante para el texto verde en el botón de Sign Up */
-.btn-signup {
-    color: #267a39; 
-}
-
-/* Icono de barras en la esquina inferior derecha */
-.bottom-right-icon {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
+.files-grid-new {
     display: flex;
-    align-items: flex-end;
-    gap: 4px;
+    gap: 20px;
+    flex-wrap: wrap;
 }
 
-.bar {
-    width: 8px;
-    background-color: #00cc44;
-    border-radius: 2px;
+.file-card-new {
+    width: 110px;
+    text-align: center;
 }
 
-.bar:nth-child(1) { height: 10px; }
-.bar:nth-child(2) { height: 18px; }
-.bar:nth-child(3) { height: 26px; }
-.bar:nth-child(4) { height: 35px; }
-
-
-/* =========================================
-   MEDIA QUERIES DE ADAPTACIÓN
-   ========================================= */
-
-/* Adaptación para pantallas con poca altura vertical (Laptops) */
-@media (max-height: 850px) {
-    .logo {
-        width: 110px;
-        height: 110px;
-        margin-bottom: 5px;
-    }
-    h1 { font-size: 2.2rem; }
-    h2 { margin-bottom: 20px; font-size: 1.5rem; }
-    .input-group { margin-bottom: 15px; }
-    .links { margin-top: 15px; margin-bottom: 20px; gap: 10px; }
-    .btn-login { padding: 12px; }
+.file-card-new img {
+    width: 100%;
+    height: 140px;
+    border-radius: 8px;
+    object-fit: cover;
+    background-color: #ffffff;
+    padding: 3px; /* Borde blanco falso */
 }
 
-/* Media Query para pantallas con poco ancho (Móviles) */
-@media (max-width: 768px) {
-    .split-container {
-        flex-direction: column;
-    }
-    .left-panel {
-        display: none;
-    }
-    .right-panel {
-        height: 100vh;
-    }
-}
-
-
-/* =========================================
-   ESTILOS DEL DASHBOARD
-   ========================================= */
-
-.dashboard-container {
-    display: flex;
-    height: 100vh;
-    background-color: #031e0b;
+.file-card-new h4 {
     color: #ffffff;
-    overflow: hidden; 
+    font-size: 0.9rem;
+    margin: 8px 0 2px 0;
+    font-weight: normal;
 }
 
-/* --- Menú Lateral (Sidebar) --- */
-.sidebar {
-    width: 280px;
-    padding-top: 40px;
-    display: flex;
-    flex-direction: column;
+.file-card-new p {
+    color: #aaaaaa;
+    font-size: 0.8rem;
+    margin-bottom: 8px;
 }
 
-.sidebar-header {
-    padding-left: 30px;
-    margin-bottom: 40px;
+.btn-eliminar {
+    background-color: #d93838;
+    color: #ffffff;
+    width: 100%;
+    border: none;
+    padding: 6px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.85rem;
+    transition: background-color 0.2s ease;
 }
 
-.sidebar-header h1 {
-    font-size: 2.2rem;
-    margin-bottom: 5px;
+.btn-eliminar:hover {
+    background-color: #b52a2a;
 }
 
-.sidebar-header h2 {
-    font-size: 1.1rem;
-    color: #66ff66;
-    margin-bottom: 0;
-}
-
-.sidebar-nav {
+/* =========================================
+   NOTIFICACIONES TIPO TOAST (DASHBOARD)
+   ========================================= */
+.toast-container {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    z-index: 9999;
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-.nav-item {
-    text-decoration: none;
-    color: #e0e0e0;
-    font-size: 1.05rem;
-    padding: 15px 30px;
-    border-radius: 0 30px 30px 0; 
-    margin-right: 20px; 
-    /* Se cambia a 'all' para que anime tanto el color como la escala */
-    transition: all 0.3s ease; 
-    /* Ancla el elemento a la izquierda para que crezca solo hacia la derecha */
-    transform-origin: left center; 
-}
-
-.nav-item:hover {
-    background-color: #0a2913;
-    /* Expande el botón un 4% de su tamaño original */
-    transform: scale(1.04); 
-}
-
-.nav-item.active {
-    background-color: #1a3020; 
+.toast {
+    min-width: 250px;
+    padding: 15px 20px;
+    border-radius: 8px;
     color: #ffffff;
-}
-
-/* --- Contenido Principal y Grid --- */
-.main-content {
-    flex: 1;
-    /* CORRECCIÓN DE SEPARACIÓN: Se incrementó el padding izquierdo a 60px (antes 10px) */
-    padding: 40px 40px 40px 100px; 
-    position: relative;
-}
-
-.widgets-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(2, 1fr);
-    gap: 20px;
-    height: 100%;
-    padding-bottom: 30px; 
-}
-
-/* Estilo base de cada widget */
-.widget {
-    background-color: #1a2f20;
-    border-radius: 15px;
-}
-
-/* Distribución asimétrica de la imagen */
-.widget-small-top { grid-column: span 1; }
-.widget-large-top { grid-column: span 2; }
-.widget-large-bottom { grid-column: span 2; }
-.widget-small-bottom { grid-column: span 1; }
-
-.dashboard-container .bottom-right-icon {
-    right: 30px;
-    bottom: 20px;
-}
-
-/* =========================================
-   SISTEMA DE PESTAÑAS (SPA VIEWS)
-   ========================================= */
-.view-section {
-    display: none; /* Oculta todas las vistas por defecto */
-    height: 100%;
-}
-
-.view-section.active {
-    display: block; /* Solo muestra la que tiene la clase active */
-}
-
-/* =========================================
-   VISTA: SUBIR ARCHIVOS (Actualizado)
-   ========================================= */
-.upload-area {
-    width: 100%;
-    height: 350px; /* Puedes subir este valor a 400px si quieres el área gris aún más grande */
-    background-color: #1a2f20;
-    border-radius: 15px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.upload-area:hover {
-    background-color: #233e2a;
-}
-
-.upload-area p {
-    color: #5c7863;
-    font-size: 1.2rem;
-    pointer-events: none;
-}
-
-.upload-thumbnails {
-    display: flex;
-    gap: 30px; /* Separación aumentada */
-    margin-top: 30px;
-}
-
-.thumb-wrapper {
-    text-align: center;
-}
-
-.thumb-box {
-    width: 130px; /* Aumentado de 90px */
-    height: 130px; /* Aumentado de 90px */
-    background-color: #3b5c43;
-    border-radius: 15px;
-    margin-bottom: 12px;
-}
-
-.thumb-wrapper p {
-    color: #e0e0e0;
-    font-size: 1.1rem; /* Texto ligeramente más grande */
-}
-
-/* =========================================
-   VISTA: CONSULTAR ARCHIVOS (Actualizado)
-   ========================================= */
-.consult-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 35px; /* Separación aumentada */
-}
-
-.consult-item {
-    text-align: center;
-}
-
-.consult-card {
-    width: 240px; /* Aumentado de 160px */
-    height: 340px; /* Aumentado de 220px */
-    background-color: #3b5c43;
-    border-radius: 20px;
-    margin-bottom: 15px;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-}
-
-.consult-card:hover {
-    transform: translateY(-8px); /* Efecto de elevación un poco más notorio */
-}
-
-.consult-item p {
-    color: #e0e0e0;
-    font-size: 1.1rem; /* Texto más grande */
-}
-
-/* =========================================
-   MODAL (CERRAR SESIÓN)
-   ========================================= */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    backdrop-filter: blur(2px); /* Efecto difuminado en el fondo */
-}
-
-.modal-overlay.hidden {
-    display: none;
-}
-
-.modal-box {
-    background-color: #ffffff;
-    padding: 40px 50px;
-    border-radius: 15px;
-    text-align: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-}
-
-.modal-box h3 {
-    color: #000000;
-    font-size: 1.2rem;
-    font-weight: 500;
-    margin-bottom: 30px;
-}
-
-.modal-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-}
-
-.btn-modal {
-    padding: 12px 50px;
-    border: none;
-    border-radius: 5px;
-    font-size: 1rem;
     font-weight: 600;
-    cursor: pointer;
-    transition: opacity 0.2s ease;
+    font-size: 1rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    /* Inicia fuera de la pantalla (a la derecha) */
+    transform: translateX(120%);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.btn-modal:hover {
-    opacity: 0.8;
+.toast.show {
+    /* Entra a la pantalla */
+    transform: translateX(0);
 }
 
-.btn-no {
-    background-color: #ff6b6b; /* Rojo claro */
-    color: #ffffff;
+.toast-success { 
+    background-color: #1a3020; 
+    border-left: 5px solid #66ff66; 
 }
 
-.btn-si {
-    background-color: #98e898; /* Verde claro */
-    color: #000000;
-}
-
-/* Botón neutro para alertas generales */
-.btn-ok {
-    background-color: #ffffff;
-    color: #031e0b;
+.toast-error { 
+    background-color: #3a1c1c; 
+    border-left: 5px solid #ff6b6b; 
 }

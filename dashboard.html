@@ -25,62 +25,48 @@
         </aside>
 
         <main class="main-content">
-            
             <div id="view-predicciones" class="view-section active">
                 <div class="widgets-grid">
-                    <div class="widget widget-small-top"></div>
-                    <div class="widget widget-large-top"></div>
-                    <div class="widget widget-large-bottom"></div>
-                    <div class="widget widget-small-bottom"></div>
+                    <div class="widget widget-small-top flex-col-center">
+                        <h3 class="widget-title">Confianza en modelo</h3>
+                        <p class="widget-huge-text">99%</p>
+                    </div>
+                    <div class="widget widget-large-top flex-row-center">
+                        <div class="fake-pie-chart"></div>
+                        <h3 class="widget-title" style="margin-left: 20px;">Consumos previos comparativos</h3>
+                    </div>
+                    <div class="widget widget-large-bottom flex-col-center">
+                        <svg width="100%" height="100%" viewBox="0 0 500 200" preserveAspectRatio="none">
+                            <polyline points="0,180 50,80 120,150 150,110 200,160 250,40 280,150 320,110 350,140 380,170 420,150 450,170 480,40 500,160" fill="none" stroke="#20c997" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <div class="widget widget-small-bottom flex-col-center">
+                        <svg width="80%" height="80%" viewBox="0 0 100 100">
+                            <line x1="10" y1="10" x2="90" y2="90" stroke="#20c997" stroke-width="2"/>
+                            <polyline points="70,90 90,90 90,70" fill="none" stroke="#20c997" stroke-width="2"/>
+                        </svg>
+                    </div>
                 </div>
             </div>
 
             <div id="view-subir" class="view-section">
-                <div class="upload-area">
-                    <p>Arrastra un archivo o da click para seleccionar uno</p>
-                </div>
-                <div class="upload-thumbnails">
-                    <div class="thumb-wrapper">
-                        <div class="thumb-box"></div>
-                        <p>img1</p>
-                    </div>
-                    <div class="thumb-wrapper">
-                        <div class="thumb-box"></div>
-                        <p>img2</p>
-                    </div>
-                    <div class="thumb-wrapper">
-                        <div class="thumb-box"></div>
-                        <p>img3</p>
-                    </div>
+                <h2 class="view-main-title">Subir archivos</h2>
+                <div class="dashed-dropzone" id="dropzone">
+                    <p>Arrastra los archivos PDF aquí ó</p>
+                    <button class="btn-seleccionar" id="btn-seleccionar-archivo">Selecciona archivos</button>
+                    <input type="file" id="file-input" accept="application/pdf" style="display: none;" multiple>
                 </div>
             </div>
 
             <div id="view-consultar" class="view-section">
-                <div class="consult-grid">
-                    <div class="consult-item">
-                        <div class="consult-card"></div>
-                        <p>14-02-2026</p>
+                <h2 class="view-main-title">Mis archivos</h2>
+                <div class="files-grid-new" id="uploaded-files-container">
                     </div>
-                    <div class="consult-item">
-                        <div class="consult-card"></div>
-                        <p>14-02-2026</p>
-                    </div>
-                    <div class="consult-item">
-                        <div class="consult-card"></div>
-                        <p>14-02-2026</p>
-                    </div>
-                    <div class="consult-item">
-                        <div class="consult-card"></div>
-                        <p>14-02-2026</p>
-                    </div>
-                    <div class="consult-item">
-                        <div class="consult-card"></div>
-                        <p>14-02-2026</p>
-                    </div>
-                </div>
             </div>
         </main>
     </div>
+
+    <div id="toast-container" class="toast-container"></div>
 
     <div id="logout-modal" class="modal-overlay hidden">
         <div class="modal-box">
@@ -94,7 +80,6 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            // --- 1. Verificación de sesión ---
             const userId = localStorage.getItem('userId');
             const nombreUsuario = localStorage.getItem('nombreUsuario');
 
@@ -108,47 +93,182 @@
                 nameDisplay.textContent = nombreUsuario;
             }
 
-            // --- 2. Lógica de Cambio de Pestañas (SPA) ---
+            // --- Lógica del Toast (Notificaciones) ---
+            const toastContainer = document.getElementById('toast-container');
+
+            function showToast(message, type = 'success') {
+                const toast = document.createElement('div');
+                toast.className = `toast toast-${type}`;
+                toast.textContent = message;
+                
+                toastContainer.appendChild(toast);
+                
+                // Pequeño retraso para que la animación de CSS funcione
+                setTimeout(() => toast.classList.add('show'), 10);
+
+                // Destruir el toast después de 3.5 segundos
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 400); // Espera a que termine la animación
+                }, 3500);
+            }
+
+            // Revisar si hay un Toast pendiente en la memoria (Por culpa del refresco de Live Server)
+            const pendingToast = localStorage.getItem('pendingToast');
+            if (pendingToast) {
+                const toastData = JSON.parse(pendingToast);
+                showToast(toastData.message, toastData.type);
+                localStorage.removeItem('pendingToast'); // Limpiamos la memoria
+            }
+
+            // Función para encolar un Toast justo antes de que Live Server recargue
+            function queueToastForReload(message, type = 'success') {
+                localStorage.setItem('pendingToast', JSON.stringify({ message, type }));
+                // También lo mostramos inmediatamente por si el entorno de producción no recarga
+                showToast(message, type); 
+            }
+
+            // --- SPA Pestañas con Memoria (LocalStorage) ---
             const navItems = document.querySelectorAll('.nav-item[data-target]');
             const viewSections = document.querySelectorAll('.view-section');
+
+            const activeTab = localStorage.getItem('currentDashboardTab') || 'view-predicciones';
+
+            navItems.forEach(nav => {
+                nav.classList.remove('active');
+                if (nav.getAttribute('data-target') === activeTab) nav.classList.add('active');
+            });
+            viewSections.forEach(view => {
+                view.classList.remove('active');
+                if (view.id === activeTab) view.classList.add('active');
+            });
 
             navItems.forEach(item => {
                 item.addEventListener('click', (e) => {
                     e.preventDefault();
-                    
-                    // Quitar clase active de todos los links y vistas
                     navItems.forEach(nav => nav.classList.remove('active'));
                     viewSections.forEach(view => view.classList.remove('active'));
-
-                    // Agregar clase active al clickeado
+                    
                     item.classList.add('active');
                     const targetId = item.getAttribute('data-target');
                     document.getElementById(targetId).classList.add('active');
+                    
+                    localStorage.setItem('currentDashboardTab', targetId);
                 });
             });
 
-            // --- 3. Lógica del Modal de Cerrar Sesión ---
+            // --- Lógica Modal Cerrar Sesión ---
             const modal = document.getElementById('logout-modal');
-            const btnOpenLogout = document.getElementById('btn-open-logout');
-            const btnCancelLogout = document.getElementById('btn-cancel-logout');
-            const btnConfirmLogout = document.getElementById('btn-confirm-logout');
-
-            // Abrir modal
-            btnOpenLogout.addEventListener('click', (e) => {
+            document.getElementById('btn-open-logout').addEventListener('click', (e) => {
                 e.preventDefault();
                 modal.classList.remove('hidden');
             });
-
-            // Cerrar modal (Botón No)
-            btnCancelLogout.addEventListener('click', () => {
+            document.getElementById('btn-cancel-logout').addEventListener('click', () => {
                 modal.classList.add('hidden');
             });
-
-            // Confirmar cierre (Botón Si)
-            btnConfirmLogout.addEventListener('click', () => {
-                localStorage.removeItem('userId');
-                localStorage.removeItem('nombreUsuario');
+            document.getElementById('btn-confirm-logout').addEventListener('click', () => {
+                localStorage.clear();
                 window.location.href = 'login.html';
+            });
+
+            // --- Lógica de Archivos ---
+            const dropzone = document.getElementById('dropzone');
+            const fileInput = document.getElementById('file-input');
+            const btnSeleccionar = document.getElementById('btn-seleccionar-archivo');
+            const container = document.getElementById('uploaded-files-container');
+            const genericPdfIcon = "https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg";
+
+            // 1. Cargar recibos existentes
+            fetch(`http://127.0.0.1:5000/api/recibos/${userId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        data.archivos.forEach(file => addFileToGrid(file.id, file.name, file.date));
+                    }
+                })
+                .catch(err => showToast("Error al cargar tus archivos", "error"));
+
+            // 2. Eventos Drag & Drop
+            btnSeleccionar.addEventListener('click', (e) => {
+                e.preventDefault();
+                fileInput.click();
+            });
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => {
+                dropzone.addEventListener(evt, e => { e.preventDefault(); e.stopPropagation(); }, false);
+            });
+            ['dragenter', 'dragover'].forEach(evt => dropzone.addEventListener(evt, () => dropzone.style.backgroundColor = '#1a3020'));
+            ['dragleave', 'drop'].forEach(evt => dropzone.addEventListener(evt, () => dropzone.style.backgroundColor = '#0b1a11'));
+
+            dropzone.addEventListener('drop', e => handleFiles(e.dataTransfer.files));
+            fileInput.addEventListener('change', function() { handleFiles(this.files); });
+
+            // 3. Subida
+            function handleFiles(files) {
+                [...files].forEach(file => {
+                    if (file.type !== 'application/pdf') {
+                        showToast(`El archivo ${file.name} no es un PDF válido.`, 'error');
+                        return;
+                    }
+
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('userId', userId);
+
+                    fetch('http://127.0.0.1:5000/api/upload', { method: 'POST', body: formData })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            addFileToGrid(data.file.id, data.file.name, data.file.date, true);
+                            // Usamos el queue por si Live Server reinicia la página
+                            queueToastForReload(`¡${data.file.name} subido con éxito!`, 'success');
+                        } else {
+                            showToast('Error: ' + data.message, 'error');
+                        }
+                    })
+                    .catch(err => showToast("Error de conexión al subir.", 'error'));
+                });
+            }
+
+            // 4. Inyección en UI 
+            function addFileToGrid(id, filename, date, alPrincipio = false) {
+                const card = document.createElement('div');
+                card.className = 'file-card-new';
+                card.innerHTML = `
+                    <img src="${genericPdfIcon}" alt="PDF" style="object-fit: contain; padding: 20px; background: white;">
+                    <h4 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 5px;" title="${filename}">${filename}</h4>
+                    <p>${date}</p>
+                    <button class="btn-eliminar" data-id="${id}">Eliminar</button>
+                `;
+                if (alPrincipio) {
+                    container.prepend(card);
+                } else {
+                    container.appendChild(card);
+                }
+            }
+
+            // 5. Borrado de Archivos
+            container.addEventListener('click', (e) => {
+                if (e.target.classList.contains('btn-eliminar')) {
+                    e.preventDefault(); 
+                    const btn = e.target;
+                    const reciboId = btn.getAttribute('data-id');
+                    const card = btn.closest('.file-card-new');
+
+                    if (confirm('¿Seguro que deseas eliminar este recibo?')) {
+                        fetch(`http://127.0.0.1:5000/api/recibos/${reciboId}`, { method: 'DELETE' })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                card.remove(); 
+                                queueToastForReload('Recibo eliminado correctamente.', 'success');
+                            } else {
+                                showToast('Error al eliminar: ' + data.message, 'error');
+                            }
+                        })
+                        .catch(err => showToast('Error de red al intentar eliminar.', 'error'));
+                    }
+                }
             });
         });
     </script>

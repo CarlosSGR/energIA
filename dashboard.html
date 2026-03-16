@@ -20,47 +20,82 @@
                 <a href="#" class="nav-item active" data-target="view-predicciones">Mis predicciones</a>
                 <a href="#" class="nav-item" data-target="view-subir">Subir archivos</a>
                 <a href="#" class="nav-item" data-target="view-consultar">Consultar archivos</a>
-                <a href="#" id="btn-open-logout" class="nav-item">Cerrar Sesión</a>
             </nav>
+
+            <div class="sidebar-footer">
+                <button id="btn-open-logout" class="btn-logout-sidebar">Cerrar Sesión</button>
+            </div>
         </aside>
 
         <main class="main-content">
+            
             <div id="view-predicciones" class="view-section active">
-                <div class="widgets-grid">
-                    <div class="widget widget-small-top flex-col-center">
-                        <h3 class="widget-title">Confianza en modelo</h3>
-                        <p class="widget-huge-text">99%</p>
+                <div class="predicciones-grid">
+                    
+                    <div class="pred-card card-white" style="grid-area: total;">
+                        <h3 class="pred-title">Total de archivos</h3>
+                        <p class="pred-value">6</p>
                     </div>
-                    <div class="widget widget-large-top flex-row-center">
-                        <div class="fake-pie-chart"></div>
-                        <h3 class="widget-title" style="margin-left: 20px;">Consumos previos comparativos</h3>
+
+                    <div class="pred-card card-light-green" style="grid-area: prediccion; position: relative;">
+                        <h3 class="pred-title" style="text-align: left;">Predicción</h3>
+                        <p style="position: absolute; top: 20px; right: 20px; font-weight: bold; font-size: 1.2rem;">$2000</p>
+                        <div class="bar-chart-mock">
+                            <div class="bar" style="height: 30%;"></div>
+                            <div class="bar" style="height: 20%;"></div>
+                            <div class="bar" style="height: 35%;"></div>
+                            <div class="bar" style="height: 25%;"></div>
+                            <div class="bar" style="height: 40%;"></div>
+                            <div class="bar" style="height: 50%;"></div>
+                            <div class="bar" style="height: 60%;"></div>
+                            <div class="bar" style="height: 45%;"></div>
+                            <div class="bar" style="height: 70%;"></div>
+                            <div class="bar" style="height: 80%;"></div>
+                            <div class="bar" style="height: 90%;"></div>
+                            <div class="bar" style="height: 100%;"></div>
+                        </div>
                     </div>
-                    <div class="widget widget-large-bottom flex-col-center">
-                        <svg width="100%" height="100%" viewBox="0 0 500 200" preserveAspectRatio="none">
-                            <polyline points="0,180 50,80 120,150 150,110 200,160 250,40 280,150 320,110 350,140 380,170 420,150 450,170 480,40 500,160" fill="none" stroke="#20c997" stroke-width="2"/>
-                        </svg>
+
+                    <div class="pred-card card-medium-green" style="grid-area: confiabilidad; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                        <h3 class="pred-title" style="color: #031e0b;">Confiabilidad del modelo</h3>
+                        <p class="pred-value" style="color: #ffffff;">98%</p>
                     </div>
-                    <div class="widget widget-small-bottom flex-col-center">
-                        <svg width="80%" height="80%" viewBox="0 0 100 100">
-                            <line x1="10" y1="10" x2="90" y2="90" stroke="#20c997" stroke-width="2"/>
-                            <polyline points="70,90 90,90 90,70" fill="none" stroke="#20c997" stroke-width="2"/>
-                        </svg>
+
+                    <div class="pred-card card-white" style="grid-area: historial;">
+                        <h3 class="pred-title" style="text-align: left; color: #5c7863;">Historial de consumo</h3>
+                        <div class="bar-chart-mock mock-light">
+                            <div class="bar" style="height: 40%;"></div>
+                            <div class="bar" style="height: 60%;"></div>
+                            <div class="bar" style="height: 30%;"></div>
+                            <div class="bar" style="height: 50%;"></div>
+                            <div class="bar" style="height: 70%;"></div>
+                            <div class="bar" style="height: 90%;"></div>
+                            <div class="bar" style="height: 45%;"></div>
+                            <div class="bar" style="height: 15%;"></div>
+                            <div class="bar" style="height: 25%;"></div>
+                            <div class="bar" style="height: 55%;"></div>
+                        </div>
                     </div>
+
                 </div>
             </div>
 
             <div id="view-subir" class="view-section">
-                <h2 class="view-main-title">Subir archivos</h2>
                 <div class="dashed-dropzone" id="dropzone">
-                    <p>Arrastra los archivos PDF aquí ó</p>
+                    <p>Arrastra los archivos aquí<br>ó</p>
                     <button class="btn-seleccionar" id="btn-seleccionar-archivo">Selecciona archivos</button>
                     <input type="file" id="file-input" accept="application/pdf" style="display: none;" multiple>
+                </div>
+                
+                <div class="upload-action-area">
+                    <div class="files-grid-new" id="staging-files-container">
+                        </div>
+                    <button id="btn-confirmar-subida" class="btn-subir-verde hidden">Subir archivo</button>
                 </div>
             </div>
 
             <div id="view-consultar" class="view-section">
-                <h2 class="view-main-title">Mis archivos</h2>
-                <div class="files-grid-new" id="uploaded-files-container">
+                <div class="files-grid-new" id="uploaded-files-container" style="margin-top: 20px;">
                     </div>
             </div>
         </main>
@@ -72,8 +107,19 @@
         <div class="modal-box">
             <h3>¿Estas seguro que quieres cerrar sesión?</h3>
             <div class="modal-buttons">
-                <button id="btn-cancel-logout" class="btn-modal btn-no">No</button>
-                <button id="btn-confirm-logout" class="btn-modal btn-si">Si</button>
+                <button id="btn-cancel-logout" class="btn-modal btn-no-volver">No</button>
+                <button id="btn-confirm-logout" class="btn-modal btn-si-seguro">Si</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="delete-modal" class="modal-overlay hidden">
+        <div class="modal-box delete-box">
+            <div class="modal-icon-warning">!</div>
+            <h3 style="margin-top: 15px;">¿Estas seguro que quieres borrar este archivo?</h3>
+            <div class="modal-buttons">
+                <button id="btn-confirm-delete" class="btn-modal btn-si-seguro">Si, estoy seguro</button>
+                <button id="btn-cancel-delete" class="btn-modal btn-no-volver">No, volver</button>
             </div>
         </div>
     </div>
@@ -88,50 +134,36 @@
                 return; 
             }
 
-            const nameDisplay = document.getElementById("display-username");
-            if (nameDisplay) {
-                nameDisplay.textContent = nombreUsuario;
-            }
+            document.getElementById("display-username").textContent = nombreUsuario;
 
-            // --- Lógica del Toast (Notificaciones) ---
+            // --- Lógica del Toast ---
             const toastContainer = document.getElementById('toast-container');
-
             function showToast(message, type = 'success') {
                 const toast = document.createElement('div');
                 toast.className = `toast toast-${type}`;
                 toast.textContent = message;
-                
                 toastContainer.appendChild(toast);
-                
-                // Pequeño retraso para que la animación de CSS funcione
                 setTimeout(() => toast.classList.add('show'), 10);
-
-                // Destruir el toast después de 3.5 segundos
                 setTimeout(() => {
                     toast.classList.remove('show');
-                    setTimeout(() => toast.remove(), 400); // Espera a que termine la animación
+                    setTimeout(() => toast.remove(), 400);
                 }, 3500);
             }
 
-            // Revisar si hay un Toast pendiente en la memoria (Por culpa del refresco de Live Server)
             const pendingToast = localStorage.getItem('pendingToast');
             if (pendingToast) {
                 const toastData = JSON.parse(pendingToast);
                 showToast(toastData.message, toastData.type);
-                localStorage.removeItem('pendingToast'); // Limpiamos la memoria
+                localStorage.removeItem('pendingToast');
             }
-
-            // Función para encolar un Toast justo antes de que Live Server recargue
             function queueToastForReload(message, type = 'success') {
                 localStorage.setItem('pendingToast', JSON.stringify({ message, type }));
-                // También lo mostramos inmediatamente por si el entorno de producción no recarga
                 showToast(message, type); 
             }
 
-            // --- SPA Pestañas con Memoria (LocalStorage) ---
+            // --- SPA Pestañas ---
             const navItems = document.querySelectorAll('.nav-item[data-target]');
             const viewSections = document.querySelectorAll('.view-section');
-
             const activeTab = localStorage.getItem('currentDashboardTab') || 'view-predicciones';
 
             navItems.forEach(nav => {
@@ -152,47 +184,53 @@
                     item.classList.add('active');
                     const targetId = item.getAttribute('data-target');
                     document.getElementById(targetId).classList.add('active');
-                    
                     localStorage.setItem('currentDashboardTab', targetId);
                 });
             });
 
-            // --- Lógica Modal Cerrar Sesión ---
-            const modal = document.getElementById('logout-modal');
+            // --- Lógica Cerrar Sesión ---
+            const logoutModal = document.getElementById('logout-modal');
             document.getElementById('btn-open-logout').addEventListener('click', (e) => {
                 e.preventDefault();
-                modal.classList.remove('hidden');
+                logoutModal.classList.remove('hidden');
             });
             document.getElementById('btn-cancel-logout').addEventListener('click', () => {
-                modal.classList.add('hidden');
+                logoutModal.classList.add('hidden');
             });
             document.getElementById('btn-confirm-logout').addEventListener('click', () => {
                 localStorage.clear();
                 window.location.href = 'login.html';
             });
 
-            // --- Lógica de Archivos ---
+            // ==========================================
+            // LÓGICA DE ARCHIVOS (STAGING & UPLOAD)
+            // ==========================================
             const dropzone = document.getElementById('dropzone');
             const fileInput = document.getElementById('file-input');
             const btnSeleccionar = document.getElementById('btn-seleccionar-archivo');
-            const container = document.getElementById('uploaded-files-container');
+            const stagingContainer = document.getElementById('staging-files-container');
+            const dbContainer = document.getElementById('uploaded-files-container');
+            const btnConfirmarSubida = document.getElementById('btn-confirmar-subida');
             const genericPdfIcon = "https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg";
 
-            // 1. Cargar recibos existentes
-            fetch(`http://127.0.0.1:5000/api/recibos/${userId}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        data.archivos.forEach(file => addFileToGrid(file.id, file.name, file.date));
-                    }
-                })
-                .catch(err => showToast("Error al cargar tus archivos", "error"));
+            let stagingFiles = []; // Cola de archivos locales
 
-            // 2. Eventos Drag & Drop
-            btnSeleccionar.addEventListener('click', (e) => {
-                e.preventDefault();
-                fileInput.click();
-            });
+            // 1. Cargar recibos desde la Base de Datos al Iniciar
+            function cargarRecibosDeBD() {
+                dbContainer.innerHTML = ''; // Limpiamos el grid
+                fetch(`http://127.0.0.1:5000/api/recibos/${userId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            data.archivos.forEach(file => addFileToGrid(dbContainer, file.id, file.name, file.date, false));
+                        }
+                    })
+                    .catch(err => console.error("Error cargando archivos: ", err));
+            }
+            cargarRecibosDeBD(); // Llamada inicial
+
+            // 2. Drag & Drop
+            btnSeleccionar.addEventListener('click', (e) => { e.preventDefault(); fileInput.click(); });
 
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => {
                 dropzone.addEventListener(evt, e => { e.preventDefault(); e.stopPropagation(); }, false);
@@ -203,35 +241,82 @@
             dropzone.addEventListener('drop', e => handleFiles(e.dataTransfer.files));
             fileInput.addEventListener('change', function() { handleFiles(this.files); });
 
-            // 3. Subida
+            // 3. Agregar a Cola (Staging)
             function handleFiles(files) {
                 [...files].forEach(file => {
                     if (file.type !== 'application/pdf') {
-                        showToast(`El archivo ${file.name} no es un PDF válido.`, 'error');
+                        showToast(`El archivo ${file.name} no es un PDF.`, 'error');
                         return;
                     }
+                    stagingFiles.push(file);
+                });
+                renderStagingArea();
+            }
 
+            function renderStagingArea() {
+                stagingContainer.innerHTML = '';
+                if (stagingFiles.length > 0) {
+                    btnConfirmarSubida.classList.remove('hidden');
+                } else {
+                    btnConfirmarSubida.classList.add('hidden');
+                }
+
+                stagingFiles.forEach((file, index) => {
+                    const today = new Date().toLocaleDateString('es-ES');
+                    const card = document.createElement('div');
+                    card.className = 'file-card-new';
+                    card.innerHTML = `
+                        <img src="${genericPdfIcon}" alt="PDF" style="object-fit: contain; padding: 20px; background: white;">
+                        <h4 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 5px;" title="${file.name}">${file.name}</h4>
+                        <p>${today}</p>
+                        <button class="btn-eliminar btn-eliminar-staging" data-index="${index}">Eliminar</button>
+                    `;
+                    stagingContainer.appendChild(card);
+                });
+            }
+
+            // Quitar archivo de la cola
+            stagingContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('btn-eliminar-staging')) {
+                    const index = e.target.getAttribute('data-index');
+                    stagingFiles.splice(index, 1);
+                    renderStagingArea();
+                }
+            });
+
+            // 4. Subir todos los archivos a Python
+            btnConfirmarSubida.addEventListener('click', async () => {
+                btnConfirmarSubida.disabled = true;
+                btnConfirmarSubida.textContent = "Subiendo...";
+
+                for (let file of stagingFiles) {
                     const formData = new FormData();
                     formData.append('file', file);
                     formData.append('userId', userId);
 
-                    fetch('http://127.0.0.1:5000/api/upload', { method: 'POST', body: formData })
-                    .then(res => res.json())
-                    .then(data => {
+                    try {
+                        const res = await fetch('http://127.0.0.1:5000/api/upload', { method: 'POST', body: formData });
+                        const data = await res.json();
                         if (data.status === 'success') {
-                            addFileToGrid(data.file.id, data.file.name, data.file.date, true);
-                            // Usamos el queue por si Live Server reinicia la página
                             queueToastForReload(`¡${data.file.name} subido con éxito!`, 'success');
                         } else {
                             showToast('Error: ' + data.message, 'error');
                         }
-                    })
-                    .catch(err => showToast("Error de conexión al subir.", 'error'));
-                });
-            }
+                    } catch (err) {
+                        showToast("Error de conexión al subir.", 'error');
+                    }
+                }
 
-            // 4. Inyección en UI 
-            function addFileToGrid(id, filename, date, alPrincipio = false) {
+                // Limpiar staging, recargar DB y rehabilitar botón
+                stagingFiles = [];
+                renderStagingArea();
+                cargarRecibosDeBD(); 
+                btnConfirmarSubida.disabled = false;
+                btnConfirmarSubida.textContent = "Subir archivo";
+            });
+
+            // Función genérica para inyectar tarjetas al grid
+            function addFileToGrid(containerDiv, id, filename, date, isStaging = false) {
                 const card = document.createElement('div');
                 card.className = 'file-card-new';
                 card.innerHTML = `
@@ -240,36 +325,51 @@
                     <p>${date}</p>
                     <button class="btn-eliminar" data-id="${id}">Eliminar</button>
                 `;
-                if (alPrincipio) {
-                    container.prepend(card);
-                } else {
-                    container.appendChild(card);
-                }
+                containerDiv.appendChild(card);
             }
 
-            // 5. Borrado de Archivos
-            container.addEventListener('click', (e) => {
+            // ==========================================
+            // LÓGICA DE BORRADO DE BASE DE DATOS (NUEVO MODAL)
+            // ==========================================
+            const deleteModal = document.getElementById('delete-modal');
+            let currentFileIdToDelete = null;
+            let currentCardToDelete = null;
+
+            dbContainer.addEventListener('click', (e) => {
                 if (e.target.classList.contains('btn-eliminar')) {
                     e.preventDefault(); 
-                    const btn = e.target;
-                    const reciboId = btn.getAttribute('data-id');
-                    const card = btn.closest('.file-card-new');
-
-                    if (confirm('¿Seguro que deseas eliminar este recibo?')) {
-                        fetch(`http://127.0.0.1:5000/api/recibos/${reciboId}`, { method: 'DELETE' })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.status === 'success') {
-                                card.remove(); 
-                                queueToastForReload('Recibo eliminado correctamente.', 'success');
-                            } else {
-                                showToast('Error al eliminar: ' + data.message, 'error');
-                            }
-                        })
-                        .catch(err => showToast('Error de red al intentar eliminar.', 'error'));
-                    }
+                    currentFileIdToDelete = e.target.getAttribute('data-id');
+                    currentCardToDelete = e.target.closest('.file-card-new');
+                    deleteModal.classList.remove('hidden'); // Abre el nuevo modal verde
                 }
             });
+
+            document.getElementById('btn-cancel-delete').addEventListener('click', () => {
+                deleteModal.classList.add('hidden');
+                currentFileIdToDelete = null;
+                currentCardToDelete = null;
+            });
+
+            document.getElementById('btn-confirm-delete').addEventListener('click', () => {
+                if(!currentFileIdToDelete) return;
+
+                fetch(`http://127.0.0.1:5000/api/recibos/${currentFileIdToDelete}`, { method: 'DELETE' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        currentCardToDelete.remove(); 
+                        deleteModal.classList.add('hidden');
+                        queueToastForReload('Recibo eliminado correctamente.', 'success');
+                    } else {
+                        showToast('Error al eliminar: ' + data.message, 'error');
+                    }
+                })
+                .catch(err => {
+                    showToast('Error de red al intentar eliminar.', 'error');
+                    deleteModal.classList.add('hidden');
+                });
+            });
+
         });
     </script>
 </body>

@@ -89,14 +89,21 @@
                 
                 <div class="upload-action-area">
                     <div class="files-grid-new" id="staging-files-container">
-                        </div>
-                    <button id="btn-confirmar-subida" class="btn-subir-verde hidden">Subir archivo</button>
+                    </div>
+                    <button id="btn-confirmar-subida" class="btn-subir-verde">Subir archivo</button>
+                </div>
+
+                <div class="uploaded-section-subir">
+                    <h3 class="section-title">Archivos en base de datos</h3>
+                    <div class="files-grid-new" id="uploaded-files-subir-container">
+                    </div>
                 </div>
             </div>
 
             <div id="view-consultar" class="view-section">
+                <h3 class="section-title" style="margin-top: 20px;">Todos los archivos</h3>
                 <div class="files-grid-new" id="uploaded-files-container" style="margin-top: 20px;">
-                    </div>
+                </div>
             </div>
         </main>
     </div>
@@ -161,6 +168,34 @@
                 showToast(message, type); 
             }
 
+            // ==========================================
+            // DEFINICIÓN DE CONTENEDORES
+            // ==========================================
+            const dbContainer = document.getElementById('uploaded-files-container');
+            const dbContainerSubir = document.getElementById('uploaded-files-subir-container');
+            const genericPdfIcon = "https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg";
+
+            // 1. Función unificada para cargar recibos desde la Base de Datos
+            function cargarRecibosDeBD() {
+                if(dbContainer) dbContainer.innerHTML = ''; 
+                if(dbContainerSubir) dbContainerSubir.innerHTML = ''; 
+                
+                fetch(`http://127.0.0.1:5000/api/recibos/${userId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            data.archivos.forEach(file => {
+                                if(dbContainer) addFileToGrid(dbContainer, file.id, file.name, file.date, false);
+                                if(dbContainerSubir) addFileToGrid(dbContainerSubir, file.id, file.name, file.date, false);
+                            });
+                        }
+                    })
+                    .catch(err => console.error("Error cargando archivos: ", err));
+            }
+
+            // Llamada inicial
+            cargarRecibosDeBD(); 
+
             // --- SPA Pestañas ---
             const navItems = document.querySelectorAll('.nav-item[data-target]');
             const viewSections = document.querySelectorAll('.view-section');
@@ -185,6 +220,11 @@
                     const targetId = item.getAttribute('data-target');
                     document.getElementById(targetId).classList.add('active');
                     localStorage.setItem('currentDashboardTab', targetId);
+
+                    // FORZAR RECARGA DE DATOS AL ENTRAR A CONSULTAR PARA EVITAR DESINCRONIZACIÓN DOM
+                    if (targetId === 'view-consultar') {
+                        cargarRecibosDeBD();
+                    }
                 });
             });
 
@@ -209,25 +249,9 @@
             const fileInput = document.getElementById('file-input');
             const btnSeleccionar = document.getElementById('btn-seleccionar-archivo');
             const stagingContainer = document.getElementById('staging-files-container');
-            const dbContainer = document.getElementById('uploaded-files-container');
             const btnConfirmarSubida = document.getElementById('btn-confirmar-subida');
-            const genericPdfIcon = "https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg";
 
-            let stagingFiles = []; // Cola de archivos locales
-
-            // 1. Cargar recibos desde la Base de Datos al Iniciar
-            function cargarRecibosDeBD() {
-                dbContainer.innerHTML = ''; // Limpiamos el grid
-                fetch(`http://127.0.0.1:5000/api/recibos/${userId}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.status === 'success') {
-                            data.archivos.forEach(file => addFileToGrid(dbContainer, file.id, file.name, file.date, false));
-                        }
-                    })
-                    .catch(err => console.error("Error cargando archivos: ", err));
-            }
-            cargarRecibosDeBD(); // Llamada inicial
+            let stagingFiles = []; 
 
             // 2. Drag & Drop
             btnSeleccionar.addEventListener('click', (e) => { e.preventDefault(); fileInput.click(); });
@@ -255,12 +279,6 @@
 
             function renderStagingArea() {
                 stagingContainer.innerHTML = '';
-                if (stagingFiles.length > 0) {
-                    btnConfirmarSubida.classList.remove('hidden');
-                } else {
-                    btnConfirmarSubida.classList.add('hidden');
-                }
-
                 stagingFiles.forEach((file, index) => {
                     const today = new Date().toLocaleDateString('es-ES');
                     const card = document.createElement('div');
@@ -286,6 +304,11 @@
 
             // 4. Subir todos los archivos a Python
             btnConfirmarSubida.addEventListener('click', async () => {
+                if (stagingFiles.length === 0) {
+                    showToast('Por favor, selecciona al menos un archivo para subir.', 'error');
+                    return;
+                }
+
                 btnConfirmarSubida.disabled = true;
                 btnConfirmarSubida.textContent = "Subiendo...";
 
@@ -298,7 +321,7 @@
                         const res = await fetch('http://127.0.0.1:5000/api/upload', { method: 'POST', body: formData });
                         const data = await res.json();
                         if (data.status === 'success') {
-                            queueToastForReload(`¡${data.file.name} subido con éxito!`, 'success');
+                            showToast(`¡${data.file.name} subido con éxito!`, 'success');
                         } else {
                             showToast('Error: ' + data.message, 'error');
                         }
@@ -307,7 +330,6 @@
                     }
                 }
 
-                // Limpiar staging, recargar DB y rehabilitar botón
                 stagingFiles = [];
                 renderStagingArea();
                 cargarRecibosDeBD(); 
@@ -329,43 +351,70 @@
             }
 
             // ==========================================
-            // LÓGICA DE BORRADO DE BASE DE DATOS (NUEVO MODAL)
+            // LÓGICA DE BORRADO DE BASE DE DATOS
             // ==========================================
             const deleteModal = document.getElementById('delete-modal');
+            const btnConfirmDelete = document.getElementById('btn-confirm-delete');
+            const btnCancelDelete = document.getElementById('btn-cancel-delete');
+            
+            // Estas variables guardan qué archivo se quiere borrar y de qué tarjeta
             let currentFileIdToDelete = null;
             let currentCardToDelete = null;
 
+            // 1. Escuchar clics en el contenedor de archivos
             dbContainer.addEventListener('click', (e) => {
+                // Verificamos si se hizo clic en un botón "Eliminar"
                 if (e.target.classList.contains('btn-eliminar')) {
                     e.preventDefault(); 
+                    
+                    // Obtenemos el ID del archivo y la tarjeta HTML que lo contiene
                     currentFileIdToDelete = e.target.getAttribute('data-id');
                     currentCardToDelete = e.target.closest('.file-card-new');
-                    deleteModal.classList.remove('hidden'); // Abre el nuevo modal verde
+                    
+                    // 2. ABRIR LA VENTANA EMERGENTE (MODAL)
+                    deleteModal.classList.remove('hidden');
+                    console.log(`Solicitud de borrado para archivo con ID: ${currentFileIdToDelete}`);
                 }
             });
 
-            document.getElementById('btn-cancel-delete').addEventListener('click', () => {
-                deleteModal.classList.add('hidden');
+            // 3. Cancelar el borrado
+            btnCancelDelete.addEventListener('click', () => {
+                deleteModal.classList.add('hidden'); // Ocultar modal
+                // Limpiar variables para que no haya archivos seleccionados por accidente
                 currentFileIdToDelete = null;
                 currentCardToDelete = null;
+                console.log("Borrado cancelado");
             });
 
-            document.getElementById('btn-confirm-delete').addEventListener('click', () => {
-                if(!currentFileIdToDelete) return;
+            // 4. CONFIRMAR EL BORRADO (al hacer clic en "Sí, estoy seguro")
+            btnConfirmDelete.addEventListener('click', () => {
+                // Si no hay un ID, no hacemos nada (seguridad)
+                if(!currentFileIdToDelete || !currentCardToDelete) return;
 
-                fetch(`http://127.0.0.1:5000/api/recibos/${currentFileIdToDelete}`, { method: 'DELETE' })
+                console.log(`Iniciando borrado del archivo ${currentFileIdToDelete}...`);
+
+                // Enviar la petición DELETE al servidor (backend)
+                fetch(`http://127.0.0.1:5000/api/recibos/${currentFileIdToDelete}`, { 
+                    method: 'DELETE' 
+                })
                 .then(res => res.json())
                 .then(data => {
                     if (data.status === 'success') {
+                        // EXITO: Borrar el archivo de la pantalla (DOM)
                         currentCardToDelete.remove(); 
-                        deleteModal.classList.add('hidden');
+                        deleteModal.classList.add('hidden'); // Ocultar modal
                         queueToastForReload('Recibo eliminado correctamente.', 'success');
+                        console.log("Archivo eliminado con éxito de la base de datos y la pantalla.");
                     } else {
+                        // ERROR del servidor
                         showToast('Error al eliminar: ' + data.message, 'error');
+                        console.error("El servidor devolvió un error:", data.message);
                     }
                 })
                 .catch(err => {
+                    // ERROR de red (ej. servidor caído)
                     showToast('Error de red al intentar eliminar.', 'error');
+                    console.error("Error de red:", err);
                     deleteModal.classList.add('hidden');
                 });
             });

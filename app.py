@@ -26,28 +26,34 @@ def get_db_connection():
 @app.route('/api/registro', methods=['POST'])
 def registro():
     data = request.json
-    nombres = data.get('nombres')
-    apellidos = data.get('apellidos')
-    correo = data.get('correo')
-    telefono = data.get('telefono')
-    contrasena = data.get('contrasena')
-    
-    acepta_notificaciones = 1 if data.get('notificaciones') else 0 
+    nombres     = data.get('nombres')
+    apellidos   = data.get('apellidos')
+    correo      = data.get('correo')
+    telefono    = data.get('telefono')
+    contrasena  = data.get('contrasena')
+    telegram    = data.get('telegram') or None   # None si viene vacío
+
+    acepta_notificaciones = 1 if data.get('notificaciones') else 0
     contrasena_hash = generate_password_hash(contrasena)
-    fecha_registro = datetime.now().strftime('%Y-%m-%d')
-    rol_default = 1 
+    fecha_registro  = datetime.now().strftime('%Y-%m-%d')
+    rol_default     = 1
 
     try:
-        conn = get_db_connection()
+        conn   = get_db_connection()
         cursor = conn.cursor()
-        
+
         query = """
-            INSERT INTO Usuario (Rol, Nombres, Apellidos, Correo, Contrasena, FechaRegistro, Telefono, AceptaNotificaciones) 
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO Usuario 
+                (Rol, Nombres, Apellidos, Correo, Contrasena, FechaRegistro, Telefono, AceptaNotificaciones, TelegramChatId) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
-        cursor.execute(query, (rol_default, nombres, apellidos, correo, contrasena_hash, fecha_registro, telefono, acepta_notificaciones))
+        cursor.execute(query, (
+            rol_default, nombres, apellidos, correo,
+            contrasena_hash, fecha_registro, telefono,
+            acepta_notificaciones, telegram
+        ))
         conn.commit()
-        
+
         return jsonify({"status": "success", "message": "Usuario registrado correctamente"}), 201
 
     except mysql.connector.IntegrityError as err:
@@ -61,25 +67,25 @@ def registro():
         return jsonify({"status": "error", "message": str(e)}), 500
     finally:
         if 'cursor' in locals(): cursor.close()
-        if 'conn' in locals(): conn.close()
+        if 'conn'   in locals(): conn.close()
 
 @app.route('/api/login', methods=['POST'])
 def login():
-    data = request.json
-    correo = data.get('correo')
+    data      = request.json
+    correo    = data.get('correo')
     contrasena = data.get('contrasena')
 
     try:
-        conn = get_db_connection()
+        conn   = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        
+
         query = "SELECT Id, Nombres, Contrasena FROM Usuario WHERE Correo = %s"
         cursor.execute(query, (correo,))
         usuario = cursor.fetchone()
-        
+
         if usuario and check_password_hash(usuario['Contrasena'], contrasena):
             return jsonify({
-                "status": "success", 
+                "status": "success",
                 "userId": usuario['Id'],
                 "nombre": usuario['Nombres']
             }), 200
@@ -90,47 +96,47 @@ def login():
         return jsonify({"status": "error", "message": str(e)}), 500
     finally:
         if 'cursor' in locals(): cursor.close()
-        if 'conn' in locals(): conn.close()
+        if 'conn'   in locals(): conn.close()
 
 @app.route('/api/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
         return jsonify({"status": "error", "message": "No se envió ningún archivo"}), 400
-    
-    file = request.files['file']
+
+    file    = request.files['file']
     user_id = request.form.get('userId')
-    
+
     if file.filename == '':
         return jsonify({"status": "error", "message": "Archivo no seleccionado"}), 400
-        
+
     if not file.filename.lower().endswith('.pdf'):
         return jsonify({"status": "error", "message": "Solo se permiten archivos PDF"}), 400
 
     try:
-        filename = secure_filename(file.filename)
-        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+        filename        = secure_filename(file.filename)
+        timestamp       = datetime.now().strftime('%Y%m%d%H%M%S')
         unique_filename = f"{user_id}_{timestamp}_{filename}"
-        
+
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
         file.save(filepath)
-        
-        conn = get_db_connection()
+
+        conn   = get_db_connection()
         cursor = conn.cursor()
         fecha_subida = datetime.now().strftime('%Y-%m-%d')
-        
+
         query = """
             INSERT INTO Recibos (UsuarioId, Url, FechaSubida, Estado) 
             VALUES (%s, %s, %s, %s)
         """
         cursor.execute(query, (user_id, filepath, fecha_subida, 'Pendiente'))
-        recibo_id = cursor.lastrowid # Obtenemos el ID recién insertado
+        recibo_id = cursor.lastrowid
         conn.commit()
-        
+
         return jsonify({
-            "status": "success", 
+            "status": "success",
             "message": "Archivo subido correctamente",
             "file": {
-                "id": recibo_id,
+                "id":   recibo_id,
                 "name": filename,
                 "date": fecha_subida
             }
@@ -140,61 +146,56 @@ def upload_file():
         return jsonify({"status": "error", "message": str(e)}), 500
     finally:
         if 'cursor' in locals(): cursor.close()
-        if 'conn' in locals(): conn.close()
+        if 'conn'   in locals(): conn.close()
 
 @app.route('/api/recibos/<int:user_id>', methods=['GET'])
 def obtener_recibos(user_id):
     try:
-        conn = get_db_connection()
+        conn   = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        
+
         query = "SELECT Id, Url, FechaSubida, Estado FROM Recibos WHERE UsuarioId = %s ORDER BY FechaSubida DESC"
         cursor.execute(query, (user_id,))
         recibos = cursor.fetchall()
-        
+
         archivos_formateados = []
         for r in recibos:
-            filename_part = os.path.basename(r['Url'])
-            partes = filename_part.split('_', 2)
+            filename_part  = os.path.basename(r['Url'])
+            partes         = filename_part.split('_', 2)
             nombre_original = partes[2] if len(partes) > 2 else filename_part
-            
+
             archivos_formateados.append({
-                "id": r['Id'],
-                "name": nombre_original,
-                "date": r['FechaSubida'].strftime('%Y-%m-%d'),
+                "id":     r['Id'],
+                "name":   nombre_original,
+                "date":   r['FechaSubida'].strftime('%Y-%m-%d'),
                 "estado": r['Estado']
             })
-            
+
         return jsonify({"status": "success", "archivos": archivos_formateados}), 200
 
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
     finally:
         if 'cursor' in locals(): cursor.close()
-        if 'conn' in locals(): conn.close()
+        if 'conn'   in locals(): conn.close()
 
-# ==========================================
-# NUEVO ENDPOINT: ELIMINAR RECIBO
-# ==========================================
 @app.route('/api/recibos/<int:recibo_id>', methods=['DELETE'])
 def eliminar_recibo(recibo_id):
     try:
-        conn = get_db_connection()
+        conn   = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        
-        # Primero buscamos la URL para borrar el archivo físico
+
         cursor.execute("SELECT Url FROM Recibos WHERE Id = %s", (recibo_id,))
         recibo = cursor.fetchone()
-        
+
         if recibo:
             filepath = recibo['Url']
             if os.path.exists(filepath):
-                os.remove(filepath) # Borra el archivo de la carpeta uploads
-                
-            # Luego borramos el registro de la base de datos
+                os.remove(filepath)
+
             cursor.execute("DELETE FROM Recibos WHERE Id = %s", (recibo_id,))
             conn.commit()
-            
+
             return jsonify({"status": "success", "message": "Recibo eliminado correctamente"}), 200
         else:
             return jsonify({"status": "error", "message": "Recibo no encontrado"}), 404
@@ -203,7 +204,7 @@ def eliminar_recibo(recibo_id):
         return jsonify({"status": "error", "message": str(e)}), 500
     finally:
         if 'cursor' in locals(): cursor.close()
-        if 'conn' in locals(): conn.close()
+        if 'conn'   in locals(): conn.close()
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

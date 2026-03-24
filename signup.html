@@ -31,13 +31,21 @@
                     <div class="input-group">
                         <input type="tel" id="telefono" placeholder="Teléfono" required>
                     </div>
+
+                    <!-- Campo Telegram: oculto hasta que se marque el checkbox -->
+                    <div class="input-group hidden-field" id="telegram-group">
+                        <input type="text" id="telegram" placeholder="Chat ID de Telegram"
+                               maxlength="10" inputmode="numeric" autocomplete="off">
+                        <a href="" id="telegram-verify-link" class="verify-link" target="_blank">Verificar</a>
+                    </div>
+
                     <div class="input-group">
                         <input type="password" id="contrasena" placeholder="Contraseña" required>
                     </div>
 
                     <div class="checkbox-group">
                         <input type="checkbox" id="notificaciones" required>
-                        <label for="notificaciones">Acepto recibir notificaciones por correo y teléfono</label>
+                        <label for="notificaciones">Acepto recibir mensajes por Telegram</label>
                     </div>
 
                     <div class="links">
@@ -61,10 +69,11 @@
     </div>
 
     <script>
+        /* ── Modal de alerta ── */
         let redirectOnClose = null;
-        const alertModal = document.getElementById('alert-modal');
+        const alertModal   = document.getElementById('alert-modal');
         const alertMessage = document.getElementById('alert-message');
-        const btnAlertOk = document.getElementById('btn-alert-ok');
+        const btnAlertOk   = document.getElementById('btn-alert-ok');
 
         function showCustomAlert(message, redirectUrl = null) {
             alertMessage.textContent = message;
@@ -74,29 +83,56 @@
 
         btnAlertOk.addEventListener('click', () => {
             alertModal.classList.add('hidden');
-            if (redirectOnClose) {
-                window.location.href = redirectOnClose;
+            if (redirectOnClose) window.location.href = redirectOnClose;
+        });
+
+        /* ── Referencias a elementos Telegram ── */
+        const checkboxNotif  = document.getElementById('notificaciones');
+        const telegramGroup  = document.getElementById('telegram-group');
+        const telegramInput  = document.getElementById('telegram');
+        const telegramVerify = document.getElementById('telegram-verify-link');
+
+        /* ── Toggle campo Telegram al marcar/desmarcar checkbox ── */
+        checkboxNotif.addEventListener('change', () => {
+            if (checkboxNotif.checked) {
+                telegramGroup.classList.add('visible');
+            } else {
+                telegramGroup.classList.remove('visible');
+                telegramInput.value = '';
+                telegramVerify.classList.remove('verify-visible');
             }
         });
 
+        /* ── Validación campo Telegram: solo dígitos, link aparece al llegar a 10 ── */
+        telegramInput.addEventListener('input', () => {
+            telegramInput.value = telegramInput.value.replace(/\D/g, '');
+
+            if (telegramInput.value.length === 10) {
+                telegramVerify.classList.add('verify-visible');
+            } else {
+                telegramVerify.classList.remove('verify-visible');
+            }
+        });
+
+        /* ── Submit del formulario ── */
         document.getElementById('registroForm').addEventListener('submit', async (e) => {
-            e.preventDefault(); 
-            
+            e.preventDefault();
+
             const data = {
-                nombres: document.getElementById('nombres').value,
-                apellidos: document.getElementById('apellidos').value,
-                correo: document.getElementById('correo').value,
-                telefono: document.getElementById('telefono').value,
-                contrasena: document.getElementById('contrasena').value,
-                // NUEVO: Captura el valor booleano (true/false) del checkbox
-                notificaciones: document.getElementById('notificaciones').checked 
+                nombres:        document.getElementById('nombres').value,
+                apellidos:      document.getElementById('apellidos').value,
+                correo:         document.getElementById('correo').value,
+                telefono:       document.getElementById('telefono').value,
+                contrasena:     document.getElementById('contrasena').value,
+                notificaciones: checkboxNotif.checked,
+                telegram:       telegramInput.value
             };
 
             try {
                 const response = await fetch('http://127.0.0.1:5000/api/registro', {
-                    method: 'POST',
+                    method:  'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
+                    body:    JSON.stringify(data)
                 });
 
                 const result = await response.json();

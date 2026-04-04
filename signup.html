@@ -32,11 +32,10 @@
                         <input type="tel" id="telefono" placeholder="Teléfono" required>
                     </div>
 
-                    <!-- Campo Telegram: oculto hasta que se marque el checkbox -->
                     <div class="input-group hidden-field" id="telegram-group">
                         <input type="text" id="telegram" placeholder="Chat ID de Telegram"
                                maxlength="10" inputmode="numeric" autocomplete="off">
-                        <a href="" id="telegram-verify-link" class="verify-link" target="_blank">Verificar</a>
+                        <a href="#" id="telegram-verify-link" class="verify-link">Verificar</a>
                     </div>
 
                     <div class="input-group">
@@ -44,7 +43,7 @@
                     </div>
 
                     <div class="checkbox-group">
-                        <input type="checkbox" id="notificaciones" required>
+                        <input type="checkbox" id="notificaciones">
                         <label for="notificaciones">Acepto recibir mensajes por Telegram</label>
                     </div>
 
@@ -68,13 +67,77 @@
         </div>
     </div>
 
+    <div id="telegram-modal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h3 style="margin-bottom: 10px;">Verificación de Telegram</h3>
+            <p style="color: #5c7863; font-size: 0.95rem; margin-bottom: 25px;">
+                Envía <strong>/verificar</strong> al siguiente link para completar tu proceso:
+            </p>
+            
+            <a href="https://t.me/TU_BOT_AQUI" target="_blank" style="display: inline-block; background-color: #1a3020; color: #6fcf85; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 1.1rem; margin-bottom: 30px;">
+                Ir al Bot de Telegram
+            </a>
+
+            <div class="modal-buttons">
+                <button id="btn-telegram-ok" class="btn-modal btn-si-seguro" style="background-color: #6fcf85; color: #000;">Ya envié el mensaje</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        /* ── Modal de alerta ── */
-        let redirectOnClose = null;
+        /* ── Referencias a elementos ── */
         const alertModal   = document.getElementById('alert-modal');
         const alertMessage = document.getElementById('alert-message');
         const btnAlertOk   = document.getElementById('btn-alert-ok');
+        
+        const telegramModal = document.getElementById('telegram-modal');
+        const btnTelegramOk = document.getElementById('btn-telegram-ok');
 
+        const checkboxNotif  = document.getElementById('notificaciones');
+        const telegramGroup  = document.getElementById('telegram-group');
+        const telegramInput  = document.getElementById('telegram');
+        const telegramVerify = document.getElementById('telegram-verify-link');
+
+        let redirectOnClose = null;
+
+        /* ── LÓGICA DE CACHÉ (Guardar datos si el usuario se va a Telegram) ── */
+        const formFields = ['nombres', 'apellidos', 'correo', 'telefono', 'telegram', 'contrasena'];
+
+        // Guardar cada vez que escribe o hace clic
+        document.getElementById('registroForm').addEventListener('input', (e) => {
+            if (e.target.id) {
+                if (e.target.type === 'checkbox') {
+                    localStorage.setItem('signup_' + e.target.id, e.target.checked);
+                } else {
+                    localStorage.setItem('signup_' + e.target.id, e.target.value);
+                }
+            }
+        });
+
+        // Cargar datos guardados al abrir la página
+        function loadCache() {
+            formFields.forEach(id => {
+                const savedValue = localStorage.getItem('signup_' + id);
+                if (savedValue) document.getElementById(id).value = savedValue;
+            });
+
+            const savedCheckbox = localStorage.getItem('signup_notificaciones');
+            if (savedCheckbox === 'true') {
+                checkboxNotif.checked = true;
+                telegramGroup.classList.add('visible');
+                if (telegramInput.value.length === 10) {
+                    telegramVerify.classList.add('verify-visible');
+                }
+            }
+        }
+        loadCache();
+
+        function clearCache() {
+            formFields.forEach(id => localStorage.removeItem('signup_' + id));
+            localStorage.removeItem('signup_notificaciones');
+        }
+
+        /* ── Modal de alerta ── */
         function showCustomAlert(message, redirectUrl = null) {
             alertMessage.textContent = message;
             redirectOnClose = redirectUrl;
@@ -86,12 +149,6 @@
             if (redirectOnClose) window.location.href = redirectOnClose;
         });
 
-        /* ── Referencias a elementos Telegram ── */
-        const checkboxNotif  = document.getElementById('notificaciones');
-        const telegramGroup  = document.getElementById('telegram-group');
-        const telegramInput  = document.getElementById('telegram');
-        const telegramVerify = document.getElementById('telegram-verify-link');
-
         /* ── Toggle campo Telegram al marcar/desmarcar checkbox ── */
         checkboxNotif.addEventListener('change', () => {
             if (checkboxNotif.checked) {
@@ -100,10 +157,11 @@
                 telegramGroup.classList.remove('visible');
                 telegramInput.value = '';
                 telegramVerify.classList.remove('verify-visible');
+                localStorage.removeItem('signup_telegram'); // Borra cache de telegram
             }
         });
 
-        /* ── Validación campo Telegram: solo dígitos, link aparece al llegar a 10 ── */
+        /* ── Validación campo Telegram y abrir Modal ── */
         telegramInput.addEventListener('input', () => {
             telegramInput.value = telegramInput.value.replace(/\D/g, '');
 
@@ -112,6 +170,17 @@
             } else {
                 telegramVerify.classList.remove('verify-visible');
             }
+        });
+
+        // Abrir popup de Telegram
+        telegramVerify.addEventListener('click', (e) => {
+            e.preventDefault();
+            telegramModal.classList.remove('hidden');
+        });
+
+        // Cerrar popup de Telegram
+        btnTelegramOk.addEventListener('click', () => {
+            telegramModal.classList.add('hidden');
         });
 
         /* ── Submit del formulario ── */
@@ -138,6 +207,7 @@
                 const result = await response.json();
 
                 if (response.ok) {
+                    clearCache(); // Si el registro fue exitoso, limpiamos la memoria
                     showCustomAlert('Registro exitoso. Serás redirigido al login.', 'login.html');
                 } else {
                     showCustomAlert('Error: ' + result.message);

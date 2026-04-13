@@ -145,10 +145,17 @@
         document.addEventListener("DOMContentLoaded", () => {
             const userId = localStorage.getItem('userId');
             const nombreUsuario = localStorage.getItem('nombreUsuario');
+            const userRol = localStorage.getItem('userRol');
 
             if (!userId || !nombreUsuario) {
                 window.location.href = 'login.html';
-                return; 
+                return;
+            }
+
+            // Los administradores no pueden acceder al dashboard de usuario
+            if (userRol === '2') {
+                window.location.href = 'admin.html';
+                return;
             }
 
             document.getElementById("display-username").textContent = nombreUsuario;

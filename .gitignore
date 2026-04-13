@@ -1,0 +1,16 @@
+# Claude Code
+.claude/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Uploads de usuarios
+uploads/
+
+# Datasets generados
+dataset_consumo.csv
+
+# Variables de entorno
+.env

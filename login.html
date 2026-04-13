@@ -86,9 +86,14 @@
                     // Guardamos los datos de sesión en el navegador
                     localStorage.setItem('userId', result.userId);
                     localStorage.setItem('nombreUsuario', result.nombre);
-                    
-                    // Redirección al Dashboard
-                    window.location.href = 'dashboard.html';
+                    localStorage.setItem('userRol', result.rol);
+
+                    // Redirección según rol
+                    if (result.rol === 2) {
+                        window.location.href = 'admin.html';
+                    } else {
+                        window.location.href = 'dashboard.html';
+                    }
                 } else {
                     // Usamos el modal en lugar de alert()
                     showCustomAlert('Error: ' + result.message);

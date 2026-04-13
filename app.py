@@ -82,7 +82,7 @@ def login():
         conn   = get_db_connection()
         cursor = conn.cursor(dictionary=True)
 
-        query = "SELECT Id, Nombres, Contrasena FROM Usuario WHERE Correo = %s"
+        query = "SELECT Id, Nombres, Contrasena, Rol FROM Usuario WHERE Correo = %s"
         cursor.execute(query, (correo,))
         usuario = cursor.fetchone()
 
@@ -90,7 +90,8 @@ def login():
             return jsonify({
                 "status": "success",
                 "userId": usuario['Id'],
-                "nombre": usuario['Nombres']
+                "nombre": usuario['Nombres'],
+                "rol": usuario['Rol']
             }), 200
         else:
             return jsonify({"status": "error", "message": "Credenciales inválidas"}), 401
@@ -224,6 +225,137 @@ def eliminar_recibo(recibo_id):
         else:
             return jsonify({"status": "error", "message": "Recibo no encontrado"}), 404
 
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn'   in locals(): conn.close()
+
+# ==========================================
+# HELPERS Y ENDPOINTS DE ADMINISTRADOR
+# ==========================================
+def verificar_admin(admin_id):
+    try:
+        conn   = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT Rol FROM Usuario WHERE Id = %s", (admin_id,))
+        user = cursor.fetchone()
+        return user is not None and user['Rol'] == 2
+    except Exception:
+        return False
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn'   in locals(): conn.close()
+
+@app.route('/api/admin/usuarios', methods=['GET'])
+def admin_get_usuarios():
+    admin_id = request.args.get('adminId')
+    if not admin_id or not verificar_admin(int(admin_id)):
+        return jsonify({"status": "error", "message": "Acceso denegado"}), 403
+
+    try:
+        conn   = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute(
+            "SELECT Id, Nombres, Apellidos, Correo, Telefono, FechaRegistro "
+            "FROM Usuario WHERE Rol = 1 ORDER BY Id"
+        )
+        usuarios = cursor.fetchall()
+        for u in usuarios:
+            if u['FechaRegistro']:
+                u['FechaRegistro'] = u['FechaRegistro'].strftime('%Y-%m-%d')
+        return jsonify({"status": "success", "usuarios": usuarios, "total": len(usuarios)}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn'   in locals(): conn.close()
+
+@app.route('/api/admin/usuarios/<int:user_id>', methods=['DELETE'])
+def admin_delete_usuario(user_id):
+    data     = request.json or {}
+    admin_id = data.get('adminId')
+    if not admin_id or not verificar_admin(int(admin_id)):
+        return jsonify({"status": "error", "message": "Acceso denegado"}), 403
+
+    try:
+        conn   = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # Obtenemos archivos físicos del usuario para borrarlos del disco
+        cursor.execute("SELECT Url FROM Recibos WHERE UsuarioId = %s", (user_id,))
+        recibos = cursor.fetchall()
+
+        cursor2 = conn.cursor()
+        # Borramos en orden para respetar las FK
+        cursor2.execute(
+            "DELETE p FROM Prediccion p "
+            "JOIN Recibos r ON p.ReciboId = r.Id WHERE r.UsuarioId = %s", (user_id,)
+        )
+        cursor2.execute("DELETE FROM Recibos      WHERE UsuarioId = %s", (user_id,))
+        cursor2.execute("DELETE FROM Analisis      WHERE UsuarioId = %s", (user_id,))
+        cursor2.execute("DELETE FROM Notificacion  WHERE UsuarioId = %s", (user_id,))
+        cursor2.execute("DELETE FROM Errores       WHERE UsuarioId = %s", (user_id,))
+        cursor2.execute("DELETE FROM Usuario       WHERE Id = %s AND Rol = 1", (user_id,))
+        conn.commit()
+
+        if cursor2.rowcount == 0:
+            return jsonify({"status": "error", "message": "Usuario no encontrado"}), 404
+
+        # Borrar archivos físicos
+        for r in recibos:
+            if r['Url'] and os.path.exists(r['Url']):
+                os.remove(r['Url'])
+
+        return jsonify({"status": "success", "message": "Usuario eliminado"}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+    finally:
+        if 'cursor'  in locals(): cursor.close()
+        if 'cursor2' in locals(): cursor2.close()
+        if 'conn'    in locals(): conn.close()
+
+@app.route('/api/admin/tickets', methods=['GET'])
+def admin_get_tickets():
+    admin_id = request.args.get('adminId')
+    if not admin_id or not verificar_admin(int(admin_id)):
+        return jsonify({"status": "error", "message": "Acceso denegado"}), 403
+
+    try:
+        conn   = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT e.Id, u.Correo, e.Titulo, e.Mensaje, e.FechaReporte, e.Estatus
+            FROM Errores e
+            JOIN Usuario u ON e.UsuarioId = u.Id
+            ORDER BY e.Id
+        """)
+        tickets = cursor.fetchall()
+        for t in tickets:
+            if t['FechaReporte']:
+                t['FechaReporte'] = t['FechaReporte'].strftime('%Y-%m-%d')
+        return jsonify({"status": "success", "tickets": tickets, "total": len(tickets)}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn'   in locals(): conn.close()
+
+@app.route('/api/admin/tickets/<int:ticket_id>', methods=['DELETE'])
+def admin_delete_ticket(ticket_id):
+    data     = request.json or {}
+    admin_id = data.get('adminId')
+    if not admin_id or not verificar_admin(int(admin_id)):
+        return jsonify({"status": "error", "message": "Acceso denegado"}), 403
+
+    try:
+        conn   = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM Errores WHERE Id = %s", (ticket_id,))
+        conn.commit()
+        if cursor.rowcount == 0:
+            return jsonify({"status": "error", "message": "Ticket no encontrado"}), 404
+        return jsonify({"status": "success", "message": "Ticket eliminado"}), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
     finally:
